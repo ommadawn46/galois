@@ -2,7 +2,10 @@ import random
 import prime_number
 import ext_euclidean
 
-class Fp:
+GALOIS_FIELDS = {}
+
+
+class GF:
     p = 0
 
     def __init__(self, v):
@@ -13,15 +16,6 @@ class Fp:
 
     def __repr__(self):
         return f"F{self.p}({self.v})"
-
-    @classmethod
-    def _get_other_value(cls, other):
-        if type(other) is cls:
-            return other.v
-        elif type(other) is int:
-            return other
-        else:
-            raise Exception
 
     def __add__(s, o):
         v = s._get_other_value(o)
@@ -46,57 +40,39 @@ class Fp:
         v = s._get_other_value(o)
         return s.v == v
 
-GaloisFields = {}
+    @classmethod
+    def _get_other_value(cls, other):
+        if type(other) is cls:
+            return other.v
+        elif type(other) is int:
+            return other
+        else:
+            raise Exception
+
+    @classmethod
+    def random(cls):
+        return cls(random.randint(0, cls.p - 1))
+
+    @classmethod
+    def zero(cls):
+        return cls(0)
+
+    @classmethod
+    def one(cls):
+        return cls(1)
+
+
 def GaloisField(p):
     if not prime_number.probably_prime(p):
         raise
-    if p in GaloisFields:
-        return GaloisFields[p]
+    if p in GALOIS_FIELDS:
+        return GALOIS_FIELDS[p]
     else:
         galois_field = type(
-            f"F{p}",
-            (Fp, ),
+            f"GF{p}",
+            (GF, ),
             {},
         )
         galois_field.p = p
-        GaloisFields[p] = galois_field
+        GALOIS_FIELDS[p] = galois_field
         return galois_field
-
-if __name__ == '__main__':
-    p = 3
-    while p <= 10000:
-        p = prime_number.next_prime(p)
-
-        GF = GaloisField(p)
-        zero, one = GF(0), GF(1)
-
-        a = GF(random.randint(2, p-1))
-        b = GF(random.randint(2, p-1))
-        c = GF(random.randint(2, p-1))
-        while a == b or b == c or c == a:
-            a = GF(random.randint(2, p-1))
-            b = GF(random.randint(2, p-1))
-            c = GF(random.randint(2, p-1))
-
-        # Group
-        assert(a + (b+c) == (a+b) + c)
-        assert(a + zero == a)
-        assert(a - a == zero)
-
-        # Abelian Group
-        assert(a + b == b + a)
-
-        # Ring
-        assert(a * (b*c) == (a*b) * c)
-        assert(a * (b+c) == a*b + a*c)
-        assert((a+b) * c == a*c + b*c)
-
-        # Commutative Ring
-        assert(a * b == b * a)
-
-        # Integral Domain
-        assert(a * one == a)
-        assert(a * zero == zero)
-
-        # Field
-        assert(a * (one / a) == one)
