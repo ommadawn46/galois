@@ -1,8 +1,12 @@
 def extgcd(x, y):
-    # a*x + b*x = c
-    a0, b0, c0 = 1, 0, x
-    a1, b1, c1 = 0, 1, y
-    while c1 != 0:
+    zero, one = 0, 1
+    if type(x) is type(y) and \
+       hasattr(x, 'zero') and callable(y.zero) and \
+       hasattr(x, 'one')  and callable(y.one):
+        zero, one = x.zero(), x.one()
+    a0, b0, c0 = one, zero, x
+    a1, b1, c1 = zero, one, y
+    while c1 != zero:
         q, r = c0 // c1, c0 % c1
         a0, b0, c0, \
         a1, b1, c1 = \
@@ -12,8 +16,11 @@ def extgcd(x, y):
 
 
 def modinv(a, n):
+    one = 1
+    if type(a) is type(n) and hasattr(a, 'one') and callable(n.one):
+        one = a.one()
     g, x, y = extgcd(a, n)
-    if g != 1:
+    if g != one:
         raise
     else:
         return x % n
