@@ -34,7 +34,7 @@ class GF:
         return s.__class__((s.v * ext_euclidean.modinv(v, s.p)) % s.p)
 
     def __truediv__(s, o):
-        return s.__floordiv__(o)
+        return s // o
 
     def __eq__(s, o):
         v = s._get_other_value(o)
