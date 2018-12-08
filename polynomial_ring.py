@@ -151,7 +151,7 @@ class GPR(PolynomialRing):
         return f"{self.__class__.__name__}({self})"
 
     def __hash__(self):
-        return (self.GF.p, tuple(c.v for c in self.coefs)).__hash__()
+        return (self.__class__, self.GF.p, tuple(c.v for c in self.coefs)).__hash__()
 
     @classmethod
     def random(cls):
@@ -167,22 +167,25 @@ class GPR(PolynomialRing):
 
 
 def GaloisPolynomialRing(p):
-    GF = galois_field.GaloisField(p)
+    if not galois_field.isGaloisField(p):
+        raise
     if p in GALOIS_POLYNOMIAL_RINGS:
         return GALOIS_POLYNOMIAL_RINGS[p]
     else:
         galois_polynomial_ring = type(
-            f'GaloisPolynomialRing[{p}]',
+            f'GaloisPolynomialRing[{p.p}]',
             (GPR, ),
             {},
         )
-        galois_polynomial_ring.GF = GF
+        galois_polynomial_ring.GF = p
         GALOIS_POLYNOMIAL_RINGS[p] = galois_polynomial_ring
         return galois_polynomial_ring
 
 
 def isGaloisPolynomialRing(p):
-    return issubclass(type(p), PolynomialRing) and hasattr(p, 'GF') and issubclass(p.GF, galois_field.GF)
+    if type(p) is not type:
+        p = type(p)
+    return issubclass(p, GPR)
 
 
 def n_to_galois_poly(n, GP):

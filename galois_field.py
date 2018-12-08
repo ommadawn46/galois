@@ -60,6 +60,9 @@ class GF:
         else:
             raise Exception
 
+    def __hash__(self):
+        return (self.__class__, self.p).__hash__()
+
     @classmethod
     def random(cls):
         return cls(random.randint(0, cls.p - 1))
@@ -87,3 +90,9 @@ def GaloisField(p):
         galois_field.p = p
         GALOIS_FIELDS[p] = galois_field
         return galois_field
+
+
+def isGaloisField(p):
+    if type(p) is not type:
+        p = type(p)
+    return issubclass(p, GF)

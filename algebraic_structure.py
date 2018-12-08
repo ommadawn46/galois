@@ -2,6 +2,7 @@ import random
 from enum import IntEnum, auto
 
 import prime_number
+import matrix
 import galois_field
 import polynomial_ring
 import galois_extension_field
@@ -115,17 +116,32 @@ def real_polynomial_ring_test():
 
 def galois_polynomial_ring_test():
     p = prime_number.next_prime(random.randint(1<<15, 1<<16))
-    GPR = polynomial_ring.GaloisPolynomialRing(p)
+    GF = galois_field.GaloisField(p)
+    GPR = polynomial_ring.GaloisPolynomialRing(GF)
     struct = AlgebraicStructure.check(GPR)
     print(GPR.__name__, 'is', struct)
 
 
 def galois_extension_field_test():
-    GPR = polynomial_ring.GaloisPolynomialRing(2)
+    p = 2
+    GF = galois_field.GaloisField(p)
+    GPR = polynomial_ring.GaloisPolynomialRing(GF)
     i_poly = polynomial_ring.generate_irreducible_polynomial(GPR, 8)
     GEF = galois_extension_field.GaloisExtensionField(i_poly)
     struct = AlgebraicStructure.check(GEF)
     print(GEF.__name__, 'is', struct)
+
+
+def matrix_ring_test():
+    MR = matrix.MatrixRing
+    struct = AlgebraicStructure.check(MR)
+    print(MR.__name__, 'is', struct)
+
+
+def matrix_multi_group_test():
+    MMG = matrix.MatrixMultiGroup
+    struct = AlgebraicStructure.check(MMG)
+    print(MMG.__name__, 'is', struct)
 
 
 if __name__ == '__main__':
@@ -133,3 +149,5 @@ if __name__ == '__main__':
     real_polynomial_ring_test()
     galois_polynomial_ring_test()
     galois_extension_field_test()
+    matrix_ring_test()
+    matrix_multi_group_test()
