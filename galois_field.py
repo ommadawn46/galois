@@ -93,7 +93,7 @@ def GaloisField(p):
         return galois_field
 
 
-def isGaloisField(p):
+def is_galois_field(p):
     if type(p) is not type:
         p = type(p)
     return issubclass(p, GF)
