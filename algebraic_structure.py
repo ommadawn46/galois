@@ -11,11 +11,7 @@ import galois_extension_field
 def is_group(A):
     a, b, c = A.random(), A.random(), A.random()
     try:
-        return all([
-            a + (b+c) == (a+b) + c,
-            a + A.zero() == a,
-            a - a == A.zero()
-        ])
+        return all([a + (b + c) == (a + b) + c, a + A.zero() == a, a - a == A.zero()])
     except:
         return False
 
@@ -31,11 +27,13 @@ def is_abelian_group(A):
 def is_ring(A):
     a, b, c = A.random(), A.random(), A.random()
     try:
-        return all([
-            a * (b*c) == (a*b) * c,
-            a * (b+c) == a*b + a*c,
-            (a+b) * c == a*c + b*c
-        ])
+        return all(
+            [
+                a * (b * c) == (a * b) * c,
+                a * (b + c) == a * b + a * c,
+                (a + b) * c == a * c + b * c,
+            ]
+        )
     except:
         return False
 
@@ -102,24 +100,24 @@ class AlgebraicStructure(IntEnum):
 
 
 def galois_field_test():
-    p = prime_number.next_prime(random.randint(1<<15, 1<<16))
+    p = prime_number.next_prime(random.randint(1 << 15, 1 << 16))
     GF = galois_field.GaloisField(p)
     struct = AlgebraicStructure.check(GF)
-    print(GF.__name__, 'is', struct)
+    print(GF.__name__, "is", struct)
 
 
 def real_polynomial_ring_test():
     RPR = polynomial_ring.RealPolynomialRing
     struct = AlgebraicStructure.check(RPR)
-    print(RPR.__name__, 'is', struct)
+    print(RPR.__name__, "is", struct)
 
 
 def galois_polynomial_ring_test():
-    p = prime_number.next_prime(random.randint(1<<15, 1<<16))
+    p = prime_number.next_prime(random.randint(1 << 15, 1 << 16))
     GF = galois_field.GaloisField(p)
     GPR = polynomial_ring.GaloisPolynomialRing(GF)
     struct = AlgebraicStructure.check(GPR)
-    print(GPR.__name__, 'is', struct)
+    print(GPR.__name__, "is", struct)
 
 
 def galois_extension_field_test():
@@ -129,22 +127,22 @@ def galois_extension_field_test():
     i_poly = polynomial_ring.generate_irreducible_polynomial(GPR, 8)
     GEF = galois_extension_field.GaloisExtensionField(i_poly)
     struct = AlgebraicStructure.check(GEF)
-    print(GEF.__name__, 'is', struct)
+    print(GEF.__name__, "is", struct)
 
 
 def matrix_ring_test():
     MR = matrix.MatrixRing
     struct = AlgebraicStructure.check(MR)
-    print(MR.__name__, 'is', struct)
+    print(MR.__name__, "is", struct)
 
 
 def matrix_multi_group_test():
     MMG = matrix.MatrixMultiGroup
     struct = AlgebraicStructure.check(MMG)
-    print(MMG.__name__, 'is', struct)
+    print(MMG.__name__, "is", struct)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     galois_field_test()
     real_polynomial_ring_test()
     galois_polynomial_ring_test()

@@ -83,11 +83,7 @@ def GaloisField(p):
     if p in GALOIS_FIELDS:
         return GALOIS_FIELDS[p]
     else:
-        galois_field = type(
-            f"GaloisField[{p}]",
-            (GF, ),
-            {},
-        )
+        galois_field = type(f"GaloisField[{p}]", (GF,), {})
         galois_field.p = p
         GALOIS_FIELDS[p] = galois_field
         return galois_field

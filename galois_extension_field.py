@@ -38,11 +38,7 @@ def GaloisExtensionField(p):
     if p in GALOIS_EXTENSION_FIELDS:
         return GALOIS_EXTENSION_FIELDS[p]
     else:
-        galois_extension_field = type(
-            f"GaloisExtensionField[{p}]",
-            (GEF, ),
-            {},
-        )
+        galois_extension_field = type(f"GaloisExtensionField[{p}]", (GEF,), {})
         galois_extension_field.p = p
         GALOIS_EXTENSION_FIELDS[p] = galois_extension_field
         return galois_extension_field

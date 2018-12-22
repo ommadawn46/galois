@@ -14,19 +14,21 @@ class PolynomialRing:
         self.coefs = coefs
 
     def __str__(self):
-        s = ''
+        s = ""
         is_first = True
         for i in range(self.degree())[::-1]:
             c = self.coefs[i]
             if c == 0:
                 continue
-            s += [' + ', ''][is_first] + \
-                 [f'{c}', ''][c == 1 and i != 0] + \
-                 ['x', ''][i == 0] + \
-                 [f'^{i}', ''][i < 2]
+            s += (
+                [" + ", ""][is_first]
+                + [f"{c}", ""][c == 1 and i != 0]
+                + ["x", ""][i == 0]
+                + [f"^{i}", ""][i < 2]
+            )
             is_first = False
-        if s == '':
-            return '0'
+        if s == "":
+            return "0"
         return s
 
     def __repr__(self):
@@ -75,7 +77,7 @@ class PolynomialRing:
         while r.degree() >= o.degree():
             e = r.degree() - o.degree()
             c = r.leading_coef() / o.leading_coef()
-            p = s.__class__([0]*e + [c])
+            p = s.__class__([0] * e + [c])
             q += p
             r -= p * o
         return q, r
@@ -105,14 +107,14 @@ class PolynomialRing:
     def degree(self):
         for i in range(len(self.coefs))[::-1]:
             if self.coefs[i] != 0:
-                return i+1
+                return i + 1
         return 0
 
     def leading_coef(self):
         d = self.degree()
         if d <= 0:
             return None
-        return self.coefs[d-1]
+        return self.coefs[d - 1]
 
 
 class RealPolynomialRing(PolynomialRing):
@@ -170,11 +172,7 @@ def GaloisPolynomialRing(p):
     if p in GALOIS_POLYNOMIAL_RINGS:
         return GALOIS_POLYNOMIAL_RINGS[p]
     else:
-        galois_polynomial_ring = type(
-            f'GaloisPolynomialRing[{p.p}]',
-            (GPR, ),
-            {},
-        )
+        galois_polynomial_ring = type(f"GaloisPolynomialRing[{p.p}]", (GPR,), {})
         galois_polynomial_ring.GF = p
         GALOIS_POLYNOMIAL_RINGS[p] = galois_polynomial_ring
         return galois_polynomial_ring
@@ -196,7 +194,7 @@ def n_to_galois_poly(n, GP):
 
 def generate_irreducible_polynomial(GP, degree):
     n = GP.GF.p ** degree
-    for n in range(n, n*degree - 1):
+    for n in range(n, n * degree - 1):
         poly = n_to_galois_poly(n, GP)
         if is_irreducible_polynomial(poly):
             return poly

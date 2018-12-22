@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class MatrixRing:
     def __init__(self, m):
         if type(m) is not np.ndarray:
@@ -53,6 +54,7 @@ class MatrixRing:
     @classmethod
     def one(cls, n=16):
         return cls(np.eye(n))
+
 
 class MatrixMultiGroup(MatrixRing):
     def __init__(self, m):
