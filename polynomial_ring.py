@@ -7,7 +7,7 @@ GALOIS_POLYNOMIAL_RINGS = {}
 
 class PolynomialRing:
     def __init__(self, coefs):
-        if type(coefs) is type(self):
+        if type(coefs) is self.__class__:
             coefs = coefs.coefs[:]
         if type(coefs) is not list:
             raise
@@ -35,11 +35,12 @@ class PolynomialRing:
     def __add__(s, o):
         if type(s) is not type(o):
             raise
-        coefs = [0] * max(s.degree(), o.degree())
+        s_degree, o_degree = s.degree(), o.degree()
+        coefs = [0] * max(s_degree, o_degree)
         for i in range(len(coefs)):
-            if i < s.degree():
+            if i < s_degree:
                 coefs[i] += s.coefs[i]
-            if i < o.degree():
+            if i < o_degree:
                 coefs[i] += o.coefs[i]
         return s.__class__(coefs)
 
@@ -57,15 +58,12 @@ class PolynomialRing:
     def __mul__(s, o):
         if type(s) is not type(o):
             raise
-        coefs = []
-        for i in range(s.degree()):
+        s_degree, o_degree = s.degree(), o.degree()
+        coefs = [0] * (s_degree + o_degree - 1)
+        for i in range(s_degree):
             if s.coefs[i] == 0:
                 continue
-            for j in range(o.degree()):
-                if o.coefs[j] == 0:
-                    continue
-                if i + j + 1 > len(coefs):
-                    coefs += [0] * (i + j + 1 - len(coefs))
+            for j in range(o_degree):
                 coefs[i + j] += s.coefs[i] * o.coefs[j]
         return s.__class__(coefs)
 

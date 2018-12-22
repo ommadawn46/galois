@@ -10,7 +10,7 @@ class GF:
     p = 0
 
     def __init__(self, v):
-        if type(v) is type(self):
+        if type(v) is self.__class__:
             v = v.v
         self.v = v % self.p
 
@@ -53,9 +53,10 @@ class GF:
 
     @classmethod
     def _get_other_value(cls, other):
-        if type(other) is cls:
+        other_type = type(other)
+        if other_type is cls:
             return other.v
-        elif type(other) is type(cls.p):
+        elif other_type is type(cls.p):
             return other
         else:
             raise Exception
