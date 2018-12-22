@@ -35,15 +35,13 @@ class PolynomialRing:
         return str(self)
 
     def __add__(s, o):
-        if type(s) is not type(o):
+        if type(o) is not s.__class__:
             raise
         s_degree, o_degree = s.degree(), o.degree()
-        coefs = [0] * max(s_degree, o_degree)
-        for i in range(len(coefs)):
-            if i < s_degree:
-                coefs[i] += s.coefs[i]
-            if i < o_degree:
-                coefs[i] += o.coefs[i]
+        coefs = [
+            (s.coefs[i] if i < s_degree else 0) + (o.coefs[i] if i < o_degree else 0)
+            for i in range(max(s_degree, o_degree))
+        ]
         return s.__class__(coefs)
 
     def __neg__(s):
@@ -53,12 +51,12 @@ class PolynomialRing:
         return s.__class__(coefs)
 
     def __sub__(s, o):
-        if type(s) is not type(o):
+        if type(o) is not s.__class__:
             raise
         return s + (-o)
 
     def __mul__(s, o):
-        if type(s) is not type(o):
+        if type(o) is not s.__class__:
             raise
         s_degree, o_degree = s.degree(), o.degree()
         coefs = [0] * (s_degree + o_degree - 1)
@@ -70,7 +68,7 @@ class PolynomialRing:
         return s.__class__(coefs)
 
     def _div_mod(s, o):
-        if type(s) is not type(o):
+        if type(o) is not s.__class__:
             raise
         q = s.__class__([0])
         r = s
@@ -95,7 +93,7 @@ class PolynomialRing:
         raise
 
     def __eq__(s, o):
-        if type(s) is not type(o):
+        if type(o) is not s.__class__:
             raise
         if s.degree() != o.degree():
             return False
