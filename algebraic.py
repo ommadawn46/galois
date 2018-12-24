@@ -57,7 +57,7 @@ def is_field(A):
         return False
 
 
-class AlgebraicStructure(IntEnum):
+class Structure(IntEnum):
     SET = auto()
     GROUP = auto()
     ABELIAN_GROUP = auto()
@@ -68,6 +68,9 @@ class AlgebraicStructure(IntEnum):
 
     @classmethod
     def check(cls, A, try_n=5):
+        if not issubclass(A, Set):
+            raise Exception(f"{A} is not {Set}")
+
         def try_repeat(f):
             return all([f(A) for _ in range(try_n)])
 
@@ -90,3 +93,17 @@ class AlgebraicStructure(IntEnum):
             return cls.INTEGRAL_DOMAIN
 
         return cls.FIELD
+
+
+class Set:
+    @classmethod
+    def random(cls):
+        raise Exception("not implemented")
+
+    @classmethod
+    def zero(cls):
+        raise Exception("not implemented")
+
+    @classmethod
+    def one(cls):
+        raise Exception("not implemented")

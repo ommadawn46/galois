@@ -1,7 +1,9 @@
 import numpy as np
 
+import algebraic
 
-class MatrixRing:
+
+class MatrixRing(algebraic.Set):
     def __init__(self, m):
         if type(m) is not np.ndarray:
             m = np.array(m)

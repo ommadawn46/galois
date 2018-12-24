@@ -3,10 +3,12 @@ import random
 import prime_number
 import ext_euclidean
 
+import algebraic
+
 GALOIS_FIELDS = {}
 
 
-class GF:
+class GF(algebraic.Set):
     p = 0
 
     def __init__(self, v):

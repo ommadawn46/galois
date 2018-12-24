@@ -1,7 +1,7 @@
 import unittest
 import random
 
-from algebraic_structure import AlgebraicStructure
+import algebraic
 
 import prime_number
 import matrix
@@ -14,25 +14,25 @@ class TestAlgebraicStructure(unittest.TestCase):
     def test_galois_field(self):
         p = prime_number.next_prime(random.randint(1 << 15, 1 << 16))
         GF = galois_field.GaloisField(p)
-        struct = AlgebraicStructure.check(GF)
+        struct = algebraic.Structure.check(GF)
 
-        self.assertEqual(struct, AlgebraicStructure.FIELD)
+        self.assertEqual(struct, algebraic.Structure.FIELD)
         print(f"\n{GF.__name__} is", struct)
 
     def test_real_polynomial_ring(self):
         RPR = polynomial_ring.RealPolynomialRing
-        struct = AlgebraicStructure.check(RPR)
+        struct = algebraic.Structure.check(RPR)
 
-        self.assertEqual(struct, AlgebraicStructure.INTEGRAL_DOMAIN)
+        self.assertEqual(struct, algebraic.Structure.INTEGRAL_DOMAIN)
         print(f"\n{RPR.__name__} is", struct)
 
     def test_galois_polynomial_ring(self):
         p = prime_number.next_prime(random.randint(1 << 15, 1 << 16))
         GF = galois_field.GaloisField(p)
         GPR = polynomial_ring.GaloisPolynomialRing(GF)
-        struct = AlgebraicStructure.check(GPR)
+        struct = algebraic.Structure.check(GPR)
 
-        self.assertEqual(struct, AlgebraicStructure.INTEGRAL_DOMAIN)
+        self.assertEqual(struct, algebraic.Structure.INTEGRAL_DOMAIN)
         print(f"\n{GPR.__name__} is", struct)
 
     def test_galois_extension_field(self):
@@ -41,21 +41,21 @@ class TestAlgebraicStructure(unittest.TestCase):
         GPR = polynomial_ring.GaloisPolynomialRing(GF)
         i_poly = polynomial_ring.generate_irreducible_polynomial(GPR, 8)
         GEF = galois_extension_field.GaloisExtensionField(i_poly)
-        struct = AlgebraicStructure.check(GEF)
+        struct = algebraic.Structure.check(GEF)
 
-        self.assertEqual(struct, AlgebraicStructure.FIELD)
+        self.assertEqual(struct, algebraic.Structure.FIELD)
         print(f"\n{GEF.__name__} is", struct)
 
     def test_matrix_ring(self):
         MR = matrix.MatrixRing
-        struct = AlgebraicStructure.check(MR)
+        struct = algebraic.Structure.check(MR)
 
-        self.assertEqual(struct, AlgebraicStructure.RING)
+        self.assertEqual(struct, algebraic.Structure.RING)
         print(f"\n{MR.__name__} is", struct)
 
     def test_matrix_multi_group(self):
         MMG = matrix.MatrixMultiGroup
-        struct = AlgebraicStructure.check(MMG)
+        struct = algebraic.Structure.check(MMG)
 
-        self.assertEqual(struct, AlgebraicStructure.GROUP)
+        self.assertEqual(struct, algebraic.Structure.GROUP)
         print(f"\n{MMG.__name__} is", struct)

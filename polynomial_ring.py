@@ -2,10 +2,12 @@ import random
 
 import galois_field
 
+import algebraic
+
 GALOIS_POLYNOMIAL_RINGS = {}
 
 
-class PolynomialRing:
+class PolynomialRing(algebraic.Set):
     def __init__(self, coefs):
         if type(coefs) is self.__class__:
             coefs = coefs.coefs[:]

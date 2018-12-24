@@ -1,12 +1,9 @@
+import algebraic
+
+
 def extgcd(x, y):
     zero, one = 0, 1
-    if (
-        type(x) is type(y)
-        and hasattr(x, "zero")
-        and callable(y.zero)
-        and hasattr(x, "one")
-        and callable(y.one)
-    ):
+    if issubclass(type(x), algebraic.Set) and issubclass(type(y), algebraic.Set):
         zero, one = x.zero(), x.one()
     a0, b0, c0 = one, zero, x
     a1, b1, c1 = zero, one, y
@@ -18,7 +15,7 @@ def extgcd(x, y):
 
 def modinv(a, n):
     one = 1
-    if type(a) is type(n) and hasattr(a, "one") and callable(n.one):
+    if issubclass(type(a), algebraic.Set) and issubclass(type(n), algebraic.Set):
         one = a.one()
     g, x, y = extgcd(a, n)
     if g != one:
