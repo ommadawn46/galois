@@ -1,7 +1,6 @@
 import random
 
-import prime_number
-import ext_euclidean
+import util
 import galois_field
 import polynomial_ring
 

@@ -1,7 +1,6 @@
 import random
 
-import prime_number
-import ext_euclidean
+import util
 
 import algebraic
 
@@ -45,7 +44,7 @@ class GF(algebraic.Set):
 
     def __floordiv__(s, o):
         v = s._get_other_value(o)
-        return s.__class__((s.v * ext_euclidean.modinv(v, s.p)) % s.p)
+        return s.__class__((s.v * util.modinv(v, s.p)) % s.p)
 
     __truediv__ = __floordiv__
 
@@ -80,7 +79,7 @@ class GF(algebraic.Set):
 
 
 def GaloisField(p):
-    if not prime_number.probably_prime(p):
+    if not util.probably_prime(p):
         raise
     if p in GALOIS_FIELDS:
         return GALOIS_FIELDS[p]
@@ -89,9 +88,3 @@ def GaloisField(p):
         galois_field.p = p
         GALOIS_FIELDS[p] = galois_field
         return galois_field
-
-
-def is_galois_field(p):
-    if type(p) is not type:
-        p = type(p)
-    return issubclass(p, GF)

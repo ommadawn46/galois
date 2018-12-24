@@ -1,18 +1,23 @@
+import sys
+import os
+
+path = os.path.join(os.path.dirname(__file__), "../galois")
+sys.path.append(path)
+
 import unittest
 import random
 
-import algebraic
-
-import prime_number
-import matrix
-import galois_field
-import polynomial_ring
-import galois_extension_field
+from galois import algebraic
+from galois import matrix
+from galois import galois_field
+from galois import polynomial_ring
+from galois import galois_extension_field
+from galois import util
 
 
 class TestAlgebraicStructure(unittest.TestCase):
     def test_galois_field(self):
-        p = prime_number.next_prime(random.randint(1 << 15, 1 << 16))
+        p = util.next_prime(random.randint(1 << 15, 1 << 16))
         GF = galois_field.GaloisField(p)
         struct = algebraic.Structure.check(GF)
 
@@ -27,7 +32,7 @@ class TestAlgebraicStructure(unittest.TestCase):
         print(f"\n{RPR.__name__} is", struct)
 
     def test_galois_polynomial_ring(self):
-        p = prime_number.next_prime(random.randint(1 << 15, 1 << 16))
+        p = util.next_prime(random.randint(1 << 15, 1 << 16))
         GF = galois_field.GaloisField(p)
         GPR = polynomial_ring.GaloisPolynomialRing(GF)
         struct = algebraic.Structure.check(GPR)

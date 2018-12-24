@@ -186,8 +186,6 @@ class GPR(PolynomialRing):
 
 
 def GaloisPolynomialRing(p):
-    if not galois_field.is_galois_field(p):
-        raise
     if p in GALOIS_POLYNOMIAL_RINGS:
         return GALOIS_POLYNOMIAL_RINGS[p]
     else:
@@ -197,15 +195,7 @@ def GaloisPolynomialRing(p):
         return galois_polynomial_ring
 
 
-def is_galois_polynomial_ring(p):
-    if type(p) is not type:
-        p = type(p)
-    return issubclass(p, GPR)
-
-
 def is_irreducible_poly(poly):
-    if not is_galois_polynomial_ring(poly):
-        return False
     p, d = poly.GF.p, poly.degree()
     for n in range(2, p ** (d - 1)):
         d_poly = poly.__class__.from_n(n)
