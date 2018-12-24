@@ -126,7 +126,9 @@ class RealPolynomialRing(PolynomialRing):
 
     @classmethod
     def random(cls):
-        return cls([random.randint(0, 100) for _ in range(100)])
+        return cls(
+            [random.randint(-1 << 16, 1 << 16) for _ in range(random.randint(1, 100))]
+        )
 
     @classmethod
     def zero(cls):
@@ -155,7 +157,7 @@ class GPR(PolynomialRing):
 
     @classmethod
     def random(cls):
-        return cls([cls.GF.random() for _ in range(100)])
+        return cls([cls.GF.random() for _ in range(random.randint(1, 100))])
 
     @classmethod
     def zero(cls):
