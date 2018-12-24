@@ -156,6 +156,23 @@ class GPR(PolynomialRing):
         return (self.__class__, self.GF.p, tuple(c.v for c in self.coefs)).__hash__()
 
     @classmethod
+    def from_n(cls, n):
+        coefs = []
+        while n > 0:
+            coefs.append(cls.GF(n))
+            n //= cls.GF.p
+        return cls(coefs)
+
+    @classmethod
+    def gen_irreducible_poly(cls, degree):
+        n = cls.GF.p ** degree
+        for n in range(n, n * degree - 1):
+            poly = cls.from_n(n)
+            if is_irreducible_poly(poly):
+                return poly
+        return None
+
+    @classmethod
     def random(cls):
         return cls([cls.GF.random() for _ in range(random.randint(1, 100))])
 
@@ -186,29 +203,12 @@ def is_galois_polynomial_ring(p):
     return issubclass(p, GPR)
 
 
-def n_to_galois_poly(n, GP):
-    coefs = []
-    while n > 0:
-        coefs.append(GP.GF(n))
-        n //= GP.GF.p
-    return GP(coefs)
-
-
-def generate_irreducible_polynomial(GP, degree):
-    n = GP.GF.p ** degree
-    for n in range(n, n * degree - 1):
-        poly = n_to_galois_poly(n, GP)
-        if is_irreducible_polynomial(poly):
-            return poly
-    return None
-
-
-def is_irreducible_polynomial(poly):
+def is_irreducible_poly(poly):
     if not is_galois_polynomial_ring(poly):
         return False
     p, d = poly.GF.p, poly.degree()
     for n in range(2, p ** (d - 1)):
-        d_poly = n_to_galois_poly(n, poly.__class__)
+        d_poly = poly.__class__.from_n(n)
         if poly % d_poly == poly.zero():
             return False
     return True

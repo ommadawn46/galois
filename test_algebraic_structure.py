@@ -39,7 +39,7 @@ class TestAlgebraicStructure(unittest.TestCase):
         p = 2
         GF = galois_field.GaloisField(p)
         GPR = polynomial_ring.GaloisPolynomialRing(GF)
-        i_poly = polynomial_ring.generate_irreducible_polynomial(GPR, 8)
+        i_poly = GPR.gen_irreducible_poly(8)
         GEF = galois_extension_field.GaloisExtensionField(i_poly)
         struct = algebraic.Structure.check(GEF)
 

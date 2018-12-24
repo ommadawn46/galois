@@ -33,7 +33,7 @@ class GEF(galois_field.GF):
 
 
 def GaloisExtensionField(p):
-    if not polynomial_ring.is_galois_polynomial_ring(p):
+    if not polynomial_ring.is_irreducible_poly(p):
         raise
     if p in GALOIS_EXTENSION_FIELDS:
         return GALOIS_EXTENSION_FIELDS[p]
