@@ -11,9 +11,9 @@ class GEF(galois_field.GF):
     p = 0
 
     def __init__(self, v):
+        if type(v) is not type(self.p):
+            v = type(self.p)(v)
         super().__init__(v)
-        if type(self.v) is not type(self.p):
-            raise
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.v})"
@@ -32,8 +32,6 @@ class GEF(galois_field.GF):
 
 
 def GaloisExtensionField(p):
-    if not polynomial_ring.is_irreducible_poly(p):
-        raise
     if p in GALOIS_EXTENSION_FIELDS:
         return GALOIS_EXTENSION_FIELDS[p]
     else:
