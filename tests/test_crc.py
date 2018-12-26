@@ -29,25 +29,17 @@ def bytes_to_coefs(data, revese=False):
     return coefs
 
 
-def calc_crc(
-    data,
-    width=32,
-    poly_value=0x04C11DB7,
-    init_value=0xFFFFFFFF,
-    reflect_in=True,
-    reflect_out=True,
-    xor_output=0xFFFFFFFF,
-):
+def calc_crc(data, width, poly_value, init_value, reflect_in, reflect_out, xor_output):
     byte_n = width // 8
-
-    poly_data = b"\x01" + poly_value.to_bytes(byte_n, "big")
-    i_poly = GPR(bytes_to_coefs(poly_data))
-    GEF = galois_extension_field.GaloisExtensionField(i_poly)
 
     new_data = bytearray(data) + bytearray(b"\x00" * byte_n)
     init_data = init_value.to_bytes(byte_n, "big")
     for i in range(byte_n):
         new_data[i] ^= init_data[i]
+
+    poly_data = b"\x01" + poly_value.to_bytes(byte_n, "big")
+    i_poly = GPR(bytes_to_coefs(poly_data))
+    GEF = galois_extension_field.GaloisExtensionField(i_poly)
 
     crc_poly = GEF(bytes_to_coefs(new_data, revese=reflect_in))
     crc_bits = crc_poly.v.coefs[:width]
@@ -62,28 +54,76 @@ def calc_crc(
 
 
 class TestCRC(unittest.TestCase):
-    def test_crc16(self):
-        input = b"123456789"
-        want = b"\xbb\x3d"
-        got = calc_crc(
-            input, width=16, poly_value=0x8005, init_value=0x0000, xor_output=0x0000
-        )
+    def test_crc(self):
+        tests = [
+            {
+                "name": "CRC8",
+                "data": b"123456789",
+                "width": 8,
+                "poly_value": 0x07,
+                "init_value": 0x00,
+                "reflect_in": False,
+                "reflect_out": False,
+                "xor_output": 0x00,
+                "check": b"\xF4",
+            },
+            {
+                "name": "CRC16_CCITT-FALSE",
+                "data": b"123456789",
+                "width": 16,
+                "poly_value": 0x1021,
+                "init_value": 0xFFFF,
+                "reflect_in": False,
+                "reflect_out": False,
+                "xor_output": 0x0000,
+                "check": b"\x29\xB1",
+            },
+            {
+                "name": "CRC16_ARC",
+                "data": b"123456789",
+                "width": 16,
+                "poly_value": 0x8005,
+                "init_value": 0x0000,
+                "reflect_in": True,
+                "reflect_out": True,
+                "xor_output": 0x0000,
+                "check": b"\xbb\x3d",
+            },
+            {
+                "name": "CRC32",
+                "data": b"123456789",
+                "width": 32,
+                "poly_value": 0x04C11DB7,
+                "init_value": 0xFFFFFFFF,
+                "reflect_in": True,
+                "reflect_out": True,
+                "xor_output": 0xFFFFFFFF,
+                "check": b"\xcb\xf4\x39\x26",
+            },
+            {
+                "name": "CRC32_Bzip2",
+                "data": b"123456789",
+                "width": 32,
+                "poly_value": 0x04C11DB7,
+                "init_value": 0xFFFFFFFF,
+                "reflect_in": False,
+                "reflect_out": False,
+                "xor_output": 0xFFFFFFFF,
+                "check": b"\xfc\x89\x19\x18",
+            },
+        ]
 
-        self.assertEqual(got, want)
-        print(f"\nCRC16({input}) = {got}")
+        print()
+        for test in tests:
+            crc = calc_crc(
+                test["data"],
+                test["width"],
+                test["poly_value"],
+                test["init_value"],
+                test["reflect_in"],
+                test["reflect_out"],
+                test["xor_output"],
+            )
 
-    def test_crc32(self):
-        input = b"123456789"
-        want = b"\xcb\xf4\x39\x26"
-        got = calc_crc(input)
-
-        self.assertEqual(got, want)
-        print(f"\nCRC32({input}) = {got}")
-
-    def test_crc32_bzip2(self):
-        input = b"123456789"
-        want = b"\xfc\x89\x19\x18"
-        got = calc_crc(input, reflect_in=False, reflect_out=False)
-
-        self.assertEqual(got, want)
-        print(f"\nCRC32_Bzip2({input}) = {got}")
+            self.assertEqual(crc, test["check"])
+            print(f"{test['name']}({test['data']}) = {crc}")
