@@ -85,6 +85,17 @@ class PolynomialRing(algebraic.Set):
                 coefs[i + j] += s.coefs[i] * o.coefs[j]
         return s.__class__(coefs)
 
+    def __pow__(s, o):
+        if type(o) is not int:
+            raise
+        if o == 0:
+            return s.one()
+        x = s ** (o >> 1)
+        y = x * x
+        if o & 1:
+            y *= s
+        return y
+
     def _div_mod(s, o):
         if type(o) is not s.__class__:
             raise
