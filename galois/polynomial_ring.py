@@ -26,12 +26,13 @@ class PolynomialRing(algebraic.Set):
             else 1
         )
         self.coefs = coefs
+        self.degree = self._degree()
 
     def __str__(self):
         s = ""
         is_first = True
-        for i in range(self.degree())[::-1]:
-            c = self.coefs[i]
+        for i in range(self.degree)[::-1]:
+            c = self[i]
             c_is_algset = issubclass(type(c), algebraic.Set)
             if c == self.coef_zero:
                 continue
@@ -54,10 +55,10 @@ class PolynomialRing(algebraic.Set):
     def __add__(s, o):
         if type(o) is not s.__class__:
             raise
-        s_degree, o_degree = s.degree(), o.degree()
+        s_degree, o_degree = s.degree, o.degree
         coefs = [
-            (s.coefs[i] if i < s_degree else s.coef_zero)
-            + (o.coefs[i] if i < o_degree else o.coef_zero)
+            (s[i] if i < s_degree else s.coef_zero)
+            + (o[i] if i < o_degree else o.coef_zero)
             for i in range(max(s_degree, o_degree))
         ]
         return s.__class__(coefs)
@@ -76,33 +77,21 @@ class PolynomialRing(algebraic.Set):
     def __mul__(s, o):
         if type(o) is not s.__class__:
             raise
-        s_degree, o_degree = s.degree(), o.degree()
-        coefs = [s.coef_zero] * (s_degree + o_degree - 1)
-        for i in range(s_degree):
-            if s.coefs[i] == s.coef_zero:
+        coefs = [s.coef_zero] * (s.degree + o.degree - 1)
+        for i in range(s.degree):
+            if s[i] == s.coef_zero:
                 continue
-            for j in range(o_degree):
-                coefs[i + j] += s.coefs[i] * o.coefs[j]
+            for j in range(o.degree):
+                coefs[i + j] += s[i] * o[j]
         return s.__class__(coefs)
-
-    def __pow__(s, o):
-        if type(o) is not int:
-            raise
-        if o == 0:
-            return s.one()
-        x = s ** (o >> 1)
-        y = x * x
-        if o & 1:
-            y *= s
-        return y
 
     def _div_mod(s, o):
         if type(o) is not s.__class__:
             raise
         q = s.__class__([s.coef_zero])
         r = s
-        while r.degree() >= o.degree():
-            e = r.degree() - o.degree()
+        while r.degree >= o.degree:
+            e = r.degree - o.degree
             c = r.leading_coef() / o.leading_coef()
             p = s.__class__([s.coef_zero] * e + [c])
             q += p
@@ -124,24 +113,43 @@ class PolynomialRing(algebraic.Set):
     def __eq__(s, o):
         if type(o) is not s.__class__:
             raise
-        if s.degree() != o.degree():
+        if s.degree != o.degree:
             return False
-        for i in range(s.degree()):
-            if s.coefs[i] != o.coefs[i]:
+        for i in range(s.degree):
+            if s[i] != o[i]:
                 return False
         return True
 
-    def degree(self):
+    def __getitem__(self, idx):
+        return self.coefs[idx]
+
+    def __setitem__(self, idx, val):
+        self.coefs[idx] = val
+        self.degree = self._degree()
+
+    def __iter__(self):
+        return iter(self.coefs)
+
+    def __len__(self):
+        return self.degree
+
+    def _degree(self):
         for i in range(len(self.coefs))[::-1]:
-            if self.coefs[i] != self.coef_zero:
+            if self[i] != self.coef_zero:
                 return i + 1
         return 0
 
     def leading_coef(self):
-        d = self.degree()
+        d = self.degree
         if d <= 0:
             return None
-        return self.coefs[d - 1]
+        return self[d - 1]
+
+    def apply(s, x):
+        r = s.coef_zero
+        for d in range(s.degree):
+            r += s[d] * (x ** d)
+        return r
 
 
 class RealPolynomialRing(PolynomialRing):
@@ -173,9 +181,9 @@ class GPR(PolynomialRing):
     def __init__(self, coefs):
         super().__init__(coefs)
         for i in range(len(self.coefs)):
-            c = self.coefs[i]
+            c = self[i]
             if type(c) is not self.GF:
-                self.coefs[i] = self.GF(c)
+                self[i] = self.GF(c)
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self})"
@@ -226,7 +234,7 @@ def GaloisPolynomialRing(p):
 
 
 def is_irreducible_poly(poly):
-    p, d = poly.GF.p, poly.degree()
+    p, d = poly.GF.p, poly.degree
     for n in range(2, p ** (d - 1)):
         d_poly = poly.__class__.from_n(n)
         if poly % d_poly == poly.zero():

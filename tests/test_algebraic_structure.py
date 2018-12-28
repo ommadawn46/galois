@@ -7,12 +7,12 @@ sys.path.append(path)
 import unittest
 import random
 
-from galois import algebraic
-from galois import matrix
-from galois import galois_field
-from galois import polynomial_ring
-from galois import galois_extension_field
-from galois import util
+import algebraic
+import matrix
+import galois_field
+import polynomial_ring
+import galois_extension_field
+import util
 
 
 class TestAlgebraicStructure(unittest.TestCase):
