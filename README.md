@@ -3,11 +3,11 @@
 ```
 ❯ python -m unittest discover tests
 
-GaloisExtensionField[x^8 + x^4 + x^3 + x + 1] is Structure.FIELD
+GaloisExtensionField[a^8 + a^4 + a^3 + a + 1] is Structure.FIELD
 .
-GaloisField[60161] is Structure.FIELD
+GaloisField[65323] is Structure.FIELD
 .
-GaloisPolynomialRing[50111] is Structure.INTEGRAL_DOMAIN
+GaloisPolynomialRing[51257] is Structure.INTEGRAL_DOMAIN
 .
 MatrixMultiGroup is Structure.GROUP
 .
@@ -22,7 +22,7 @@ CRC32(b'123456789') = b'\xcb\xf49&'
 CRC32_Bzip2(b'123456789') = b'\xfc\x89\x19\x18'
 .
 ----------------------------------------------------------------------
-Ran 7 tests in 1.518s
+Ran 7 tests in 1.589s
 
 OK
 ```

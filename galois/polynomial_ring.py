@@ -8,11 +8,23 @@ GALOIS_POLYNOMIAL_RINGS = {}
 
 
 class PolynomialRing(algebraic.Set):
+    VARCHAR = "x"
+
     def __init__(self, coefs):
         if type(coefs) is self.__class__:
             coefs = coefs.coefs[:]
         if type(coefs) is not list:
             raise
+        self.coef_zero = (
+            coefs[0].zero()
+            if issubclass(type(coefs[0] if len(coefs) > 0 else None), algebraic.Set)
+            else 0
+        )
+        self.coef_one = (
+            coefs[0].one()
+            if issubclass(type(coefs[0] if len(coefs) > 0 else None), algebraic.Set)
+            else 1
+        )
         self.coefs = coefs
 
     def __str__(self):
@@ -20,17 +32,20 @@ class PolynomialRing(algebraic.Set):
         is_first = True
         for i in range(self.degree())[::-1]:
             c = self.coefs[i]
-            if c == 0:
+            c_is_algset = issubclass(type(c), algebraic.Set)
+            if c == self.coef_zero:
                 continue
             s += (
                 [" + ", ""][is_first]
-                + [f"{c}", ""][c == 1 and i != 0]
-                + ["x", ""][i == 0]
+                + [f"({c})" if c_is_algset and i != 0 else f"{c}", ""][
+                    c == self.coef_one and i != 0
+                ]
+                + [f"{self.VARCHAR}", ""][i == 0]
                 + [f"^{i}", ""][i < 2]
             )
             is_first = False
         if s == "":
-            return "0"
+            return f"{self.coef_zero}"
         return s
 
     def __repr__(self):
@@ -41,7 +56,8 @@ class PolynomialRing(algebraic.Set):
             raise
         s_degree, o_degree = s.degree(), o.degree()
         coefs = [
-            (s.coefs[i] if i < s_degree else 0) + (o.coefs[i] if i < o_degree else 0)
+            (s.coefs[i] if i < s_degree else s.coef_zero)
+            + (o.coefs[i] if i < o_degree else o.coef_zero)
             for i in range(max(s_degree, o_degree))
         ]
         return s.__class__(coefs)
@@ -61,9 +77,9 @@ class PolynomialRing(algebraic.Set):
         if type(o) is not s.__class__:
             raise
         s_degree, o_degree = s.degree(), o.degree()
-        coefs = [0] * (s_degree + o_degree - 1)
+        coefs = [s.coef_zero] * (s_degree + o_degree - 1)
         for i in range(s_degree):
-            if s.coefs[i] == 0:
+            if s.coefs[i] == s.coef_zero:
                 continue
             for j in range(o_degree):
                 coefs[i + j] += s.coefs[i] * o.coefs[j]
@@ -72,12 +88,12 @@ class PolynomialRing(algebraic.Set):
     def _div_mod(s, o):
         if type(o) is not s.__class__:
             raise
-        q = s.__class__([0])
+        q = s.__class__([s.coef_zero])
         r = s
         while r.degree() >= o.degree():
             e = r.degree() - o.degree()
             c = r.leading_coef() / o.leading_coef()
-            p = s.__class__([0] * e + [c])
+            p = s.__class__([s.coef_zero] * e + [c])
             q += p
             r -= p * o
         return q, r
@@ -106,7 +122,7 @@ class PolynomialRing(algebraic.Set):
 
     def degree(self):
         for i in range(len(self.coefs))[::-1]:
-            if self.coefs[i] != 0:
+            if self.coefs[i] != self.coef_zero:
                 return i + 1
         return 0
 
@@ -141,6 +157,7 @@ class RealPolynomialRing(PolynomialRing):
 
 class GPR(PolynomialRing):
     GF = None
+    GPR_VARCHAR = ord("a")
 
     def __init__(self, coefs):
         super().__init__(coefs)
@@ -191,7 +208,9 @@ def GaloisPolynomialRing(p):
     else:
         galois_polynomial_ring = type(f"GaloisPolynomialRing[{p.p}]", (GPR,), {})
         galois_polynomial_ring.GF = p
+        galois_polynomial_ring.VARCHAR = chr(GPR.GPR_VARCHAR)
         GALOIS_POLYNOMIAL_RINGS[p] = galois_polynomial_ring
+        GPR.GPR_VARCHAR += 1
         return galois_polynomial_ring
 
 
