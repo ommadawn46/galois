@@ -1,10 +1,5 @@
-import random
-
-import algebraic
-import matrix
 import galois_field
 import polynomial_ring
-import galois_extension_field
 import util
 
 p = 2
@@ -12,32 +7,31 @@ p = 2
 # GaloisField[2]
 GF = galois_field.GaloisField(p)
 
-# GaloisPolynomialRing[2]
-GPR = polynomial_ring.GaloisPolynomialRing(GF)
+# PolynomialRing[GaloisField[2]]
+GPR = polynomial_ring.PolynomialRing(GF)
 
-# GaloisPolynomialRing[2](a^8 + a^4 + a^3 + a^2 + 1)
+# PolynomialRing[GaloisField[2]](a^8 + a^4 + a^3 + a^2 + 1)
 primitive_poly = GPR([1, 0, 1, 1, 1, 0, 0, 0, 1])
 
-# GaloisExtensionField[a^8 + a^4 + a^3 + a^2 + 1]
-GEF = galois_extension_field.GaloisExtensionField(primitive_poly)
+# GaloisField[a^8 + a^4 + a^3 + a^2 + 1]
+GEF = galois_field.GaloisField(primitive_poly)
 
-# GaloisPolynomialRing[a^8 + a^4 + a^3 + a^2 + 1]
-RS = polynomial_ring.GaloisPolynomialRing(GEF)
-RS.VARCHAR = "x"
+# PolynomialRing[GaloisField[a^8 + a^4 + a^3 + a^2 + 1]]
+RS = polynomial_ring.PolynomialRing(GEF)
 
-# GaloisPolynomialRing[a^8 + a^4 + a^3 + a^2 + 1](x)
+# PolynomialRing[GaloisField[a^8 + a^4 + a^3 + a^2 + 1]](x)
 x = RS([GEF([0]), GEF([1])])
 
-# GaloisExtensionField[a^8 + a^4 + a^3 + a^2 + 1](a)
+# GaloisField[a^8 + a^4 + a^3 + a^2 + 1](a)
 a = GEF([0, 1])
 
 
-def data_to_rs_poly(data):
+def data_to_poly(data):
     bin_list = util.unpack_data(data)
     return RS([GEF(byte) for byte in util.bin_to_byte(bin_list)])
 
 
-def rs_poly_to_data(poly):
+def poly_to_data(poly):
     data = b""
     for gef in poly:
         data += util.pack_bin_list([gf.v for gf in gef.v])
@@ -130,12 +124,12 @@ def calc_error_poly(C, n, k):
 
 def encode(I, n, k):
     G = make_gen_poly(n - k)
-    I_pad = I * x ** (n - k)
-    P = I_pad % G
-    C = I_pad + P
+    shifted_I = I * x ** (n - k)
+    P = shifted_I % G
+    C = shifted_I + P
     return C
 
 
 def decode(C, n, k):
     E = calc_error_poly(C, n, k)
-    return RS((C + E).coefs[-k:])
+    return RS((C + E)[-k:])

@@ -1,12 +1,10 @@
 import galois_field
 import polynomial_ring
-import galois_extension_field
 import util
-
 
 p = 2
 GF = galois_field.GaloisField(p)
-GPR = polynomial_ring.GaloisPolynomialRing(GF)
+GPR = polynomial_ring.PolynomialRing(GF)
 
 
 def calc(data, width, poly_value, init_value, reflect_in, reflect_out, xor_output):
@@ -19,10 +17,10 @@ def calc(data, width, poly_value, init_value, reflect_in, reflect_out, xor_outpu
 
     poly_data = b"\x01" + poly_value.to_bytes(byte_n, "big")
     i_poly = GPR(util.unpack_data(poly_data))
-    GEF = galois_extension_field.GaloisExtensionField(i_poly)
+    GEF = galois_field.GaloisField(i_poly)
 
     crc_poly = GEF(util.unpack_data(new_data, revese=reflect_in))
-    crc_bits = crc_poly.v.coefs[:width]
+    crc_bits = crc_poly.v[:width]
 
     out = "".join(map(lambda x: str(x.v), crc_bits[::-1]))
     out = "0" * (width - len(out)) + out

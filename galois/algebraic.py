@@ -1,4 +1,6 @@
-from enum import IntEnum, auto
+from enum import IntEnum
+from enum import auto
+
 from set import Set
 
 

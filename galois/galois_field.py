@@ -1,16 +1,15 @@
 import random
 
-import util
-
 import algebraic
+import util
 
 GALOIS_FIELDS = {}
 
 
 class GF(algebraic.Set):
-    p = 0
-
     def __init__(self, v):
+        if type(v) is not type(self.p):
+            v = type(self.p)(v)
         if type(v) is self.__class__:
             v = v.v
         self.v = v % self.p
@@ -67,24 +66,28 @@ class GF(algebraic.Set):
 
     @classmethod
     def random(cls):
-        return cls(random.randint(0, cls.p - 1))
+        if isinstance(cls.p, algebraic.Set):
+            return cls(cls.p.random())
+        if isinstance(cls.p, int):
+            return cls(random.randint(0, cls.p - 1))
+        raise
 
     @classmethod
     def zero(cls):
-        return cls(0)
+        return cls(cls.p_zero)
 
     @classmethod
     def one(cls):
-        return cls(1)
+        return cls(cls.p_one)
 
 
 def GaloisField(p):
-    if not util.probably_prime(p):
-        raise
     if p in GALOIS_FIELDS:
         return GALOIS_FIELDS[p]
     else:
         galois_field = type(f"GaloisField[{p}]", (GF,), {})
         galois_field.p = p
+        galois_field.p_zero = p.zero() if isinstance(p, algebraic.Set) else 0
+        galois_field.p_one = p.one() if isinstance(p, algebraic.Set) else 1
         GALOIS_FIELDS[p] = galois_field
         return galois_field

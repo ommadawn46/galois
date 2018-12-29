@@ -1,30 +1,22 @@
 import random
 
-import galois_field
-
 import algebraic
 
-GALOIS_POLYNOMIAL_RINGS = {}
+global CURRENT_VARCHAR
+CURRENT_VARCHAR = ord("a")
+POLYNOMIAL_RINGS = {}
 
 
-class PolynomialRing(algebraic.Set):
-    VARCHAR = "x"
-
+class PR(algebraic.Set):
     def __init__(self, coefs):
         if type(coefs) is self.__class__:
             coefs = coefs.coefs[:]
         if type(coefs) is not list:
             raise
-        self.coef_zero = (
-            coefs[0].zero()
-            if issubclass(type(coefs[0] if len(coefs) > 0 else None), algebraic.Set)
-            else 0
-        )
-        self.coef_one = (
-            coefs[0].one()
-            if issubclass(type(coefs[0] if len(coefs) > 0 else None), algebraic.Set)
-            else 1
-        )
+        for i in range(len(coefs)):
+            c = coefs[i]
+            if not isinstance(c, self.coef_cls):
+                coefs[i] = self.coef_cls(c)
         self.coefs = coefs
         self.degree = self._degree()
 
@@ -50,7 +42,10 @@ class PolynomialRing(algebraic.Set):
         return s
 
     def __repr__(self):
-        return str(self)
+        return f"{self.__class__.__name__}({self})"
+
+    def __hash__(self):
+        return (self.__class__, self.coef_cls, tuple(self.coefs)).__hash__()
 
     def __add__(s, o):
         if type(o) is not s.__class__:
@@ -151,92 +146,74 @@ class PolynomialRing(algebraic.Set):
             r += s[d] * (x ** d)
         return r
 
-
-class RealPolynomialRing(PolynomialRing):
-    def __init__(self, coefs):
-        super().__init__(coefs)
-        for c in self.coefs:
-            if not (type(c) is int or type(c) is float):
-                raise
-
     @classmethod
     def random(cls):
-        return cls(
-            [random.randint(-1 << 16, 1 << 16) for _ in range(random.randint(1, 100))]
-        )
+        if issubclass(cls.coef_cls, algebraic.Set):
+            return cls([cls.coef_cls.random() for _ in range(random.randint(1, 16))])
+        if issubclass(cls.coef_cls, (int, float)):
+            return cls(
+                [
+                    random.randint(-1 << 16, 1 << 16)
+                    for _ in range(random.randint(1, 100))
+                ]
+            )
+        raise
 
     @classmethod
     def zero(cls):
-        return cls([0])
+        if issubclass(cls.coef_cls, algebraic.Set):
+            return cls([cls.coef_cls.zero()])
+        if issubclass(cls.coef_cls, (int, float)):
+            return cls([0])
+        raise
 
     @classmethod
     def one(cls):
-        return cls([1])
+        if issubclass(cls.coef_cls, algebraic.Set):
+            return cls([cls.coef_cls.one()])
+        if issubclass(cls.coef_cls, (int, float)):
+            return cls([1])
+        raise
 
 
-class GPR(PolynomialRing):
-    GF = None
-    GPR_VARCHAR = ord("a")
-
-    def __init__(self, coefs):
-        super().__init__(coefs)
-        for i in range(len(self.coefs)):
-            c = self[i]
-            if type(c) is not self.GF:
-                self[i] = self.GF(c)
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}({self})"
-
-    def __hash__(self):
-        return (self.__class__, self.GF.p, tuple(c.v for c in self.coefs)).__hash__()
-
-    @classmethod
-    def from_n(cls, n):
-        coefs = []
-        while n > 0:
-            coefs.append(cls.GF(n))
-            n //= cls.GF.p
-        return cls(coefs)
-
-    @classmethod
-    def gen_irreducible_poly(cls, degree):
-        n = cls.GF.p ** degree
-        for n in range(n, n * degree - 1):
-            poly = cls.from_n(n)
-            if is_irreducible_poly(poly):
-                return poly
-        return None
-
-    @classmethod
-    def random(cls):
-        return cls([cls.GF.random() for _ in range(random.randint(1, 100))])
-
-    @classmethod
-    def zero(cls):
-        return cls([cls.GF.zero()])
-
-    @classmethod
-    def one(cls):
-        return cls([cls.GF.one()])
-
-
-def GaloisPolynomialRing(p):
-    if p in GALOIS_POLYNOMIAL_RINGS:
-        return GALOIS_POLYNOMIAL_RINGS[p]
+def PolynomialRing(p):
+    if p in POLYNOMIAL_RINGS:
+        return POLYNOMIAL_RINGS[p]
     else:
-        galois_polynomial_ring = type(f"GaloisPolynomialRing[{p.p}]", (GPR,), {})
-        galois_polynomial_ring.GF = p
-        galois_polynomial_ring.VARCHAR = chr(GPR.GPR_VARCHAR)
-        GALOIS_POLYNOMIAL_RINGS[p] = galois_polynomial_ring
-        GPR.GPR_VARCHAR += 1
-        return galois_polynomial_ring
+        global CURRENT_VARCHAR
+        polynomial_ring = type(f"PolynomialRing[{p.__name__}]", (PR,), {})
+        polynomial_ring.coef_cls = p
+        polynomial_ring.coef_zero = p.zero() if issubclass(p, algebraic.Set) else 0
+        polynomial_ring.coef_one = p.one() if issubclass(p, algebraic.Set) else 1
+
+        polynomial_ring.VARCHAR = chr(CURRENT_VARCHAR)
+        CURRENT_VARCHAR += 1
+
+        POLYNOMIAL_RINGS[p] = polynomial_ring
+        return polynomial_ring
+
+
+def from_n(cls, n):
+    coefs = []
+    while n > 0:
+        coefs.append(cls.coef_cls(n))
+        n //= cls.coef_cls.p
+    return cls(coefs)
+
+
+def gen_irreducible_poly(cls, degree):
+    n = cls.coef_cls.p ** degree
+    for n in range(n, n * degree - 1):
+        poly = from_n(cls, n)
+        if is_irreducible_poly(poly):
+            return poly
+    return None
 
 
 def is_irreducible_poly(poly):
-    p, d = poly.GF.p, poly.degree
+    p, d = poly.coef_cls.p, poly.degree
     for n in range(2, p ** (d - 1)):
-        d_poly = poly.__class__.from_n(n)
+        d_poly = from_n(poly.__class__, n)
         if poly % d_poly == poly.zero():
             return False
     return True

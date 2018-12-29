@@ -1,10 +1,10 @@
-import sys
 import os
+import sys
+import unittest
 
 path = os.path.join(os.path.dirname(__file__), "../galois")
 sys.path.append(path)
 
-import unittest
 from encoding import crc
 
 

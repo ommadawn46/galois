@@ -1,11 +1,11 @@
-import sys
 import os
+import random
+import sys
+import unittest
 
 path = os.path.join(os.path.dirname(__file__), "../galois")
 sys.path.append(path)
 
-import random
-import unittest
 from encoding import reed_solomon as rs
 
 
@@ -21,7 +21,7 @@ class TestReedSolomons(unittest.TestCase):
         for test in tests:
             input_data, n, k = test["input_data"], test["n"], test["k"]
 
-            I = rs.data_to_rs_poly(input_data)
+            I = rs.data_to_poly(input_data)
             C = rs.encode(I, n, k)
 
             noise = rs.RS.zero()
@@ -32,11 +32,10 @@ class TestReedSolomons(unittest.TestCase):
                 d = random.randint(1, n - 1)
                 noise += rs.RS([gef]) * rs.x ** d
             noised_C = C + noise
-            noised_data = rs.rs_poly_to_data(noised_C)
+            noised_data = rs.poly_to_data(noised_C)
 
             decoded_I = rs.decode(noised_C, n, k)
-            decoded_data = rs.rs_poly_to_data(decoded_I)
+            decoded_data = rs.poly_to_data(decoded_I)
 
             self.assertEqual(decoded_data, input_data)
-
             print(f"ReedSolomon({noised_data}) = {decoded_data}")
