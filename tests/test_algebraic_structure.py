@@ -36,8 +36,8 @@ class TestAlgebraicStructure(unittest.TestCase):
         p = 2
         GF = galois_field.GaloisField(p)
         GPR = polynomial_ring.PolynomialRing(GF)
-        i_poly = polynomial_ring.gen_irreducible_poly(GPR, 8)
-        GEF = galois_field.GaloisField(i_poly)
+        primitive_poly = GPR.gen_primitive_poly(8)
+        GEF = galois_field.GaloisField(primitive_poly)
         struct = algebraic.Structure.check(GEF)
 
         self.assertEqual(struct, algebraic.Structure.FIELD)

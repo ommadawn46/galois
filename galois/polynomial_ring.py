@@ -1,6 +1,7 @@
 import random
 
 import algebraic
+import galois_field
 
 global CURRENT_VARCHAR
 CURRENT_VARCHAR = ord("a")
@@ -9,10 +10,10 @@ POLYNOMIAL_RINGS = {}
 
 class PR(algebraic.Set):
     def __init__(self, coefs):
-        if type(coefs) is self.__class__:
+        if isinstance(coefs, self.__class__):
             coefs = coefs.coefs[:]
-        if type(coefs) is not list:
-            raise
+        if not isinstance(coefs, list):
+            coefs = [coefs]
         for i in range(len(coefs)):
             c = coefs[i]
             if not isinstance(c, self.coef_cls):
@@ -25,7 +26,7 @@ class PR(algebraic.Set):
         is_first = True
         for i in range(self.degree)[::-1]:
             c = self[i]
-            c_is_algset = issubclass(type(c), algebraic.Set)
+            c_is_algset = isinstance(c, algebraic.Set)
             if c == self.coef_zero:
                 continue
             s += (
@@ -48,8 +49,7 @@ class PR(algebraic.Set):
         return (self.__class__, self.coef_cls, tuple(self.coefs)).__hash__()
 
     def __add__(s, o):
-        if type(o) is not s.__class__:
-            raise
+        s._type_check(o, "+")
         s_degree, o_degree = s.degree, o.degree
         coefs = [
             (s[i] if i < s_degree else s.coef_zero)
@@ -65,13 +65,11 @@ class PR(algebraic.Set):
         return s.__class__(coefs)
 
     def __sub__(s, o):
-        if type(o) is not s.__class__:
-            raise
+        s._type_check(o, "-")
         return s + (-o)
 
     def __mul__(s, o):
-        if type(o) is not s.__class__:
-            raise
+        s._type_check(o, "*")
         coefs = [s.coef_zero] * (s.degree + o.degree - 1)
         for i in range(s.degree):
             if s[i] == s.coef_zero:
@@ -81,8 +79,6 @@ class PR(algebraic.Set):
         return s.__class__(coefs)
 
     def _div_mod(s, o):
-        if type(o) is not s.__class__:
-            raise
         q = s.__class__([s.coef_zero])
         r = s
         while r.degree >= o.degree:
@@ -94,20 +90,21 @@ class PR(algebraic.Set):
         return q, r
 
     def __floordiv__(s, o):
+        s._type_check(o, "//")
         q, _ = s._div_mod(o)
         return q
 
     def __mod__(s, o):
+        s._type_check(o, "%")
         _, r = s._div_mod(o)
         return r
 
     def __truediv__(s, o):
         # undefined
-        raise
+        raise Exception("undefined")
 
     def __eq__(s, o):
-        if type(o) is not s.__class__:
-            raise
+        s._type_check(o, "==")
         if s.degree != o.degree:
             return False
         for i in range(s.degree):
@@ -128,6 +125,12 @@ class PR(algebraic.Set):
     def __len__(self):
         return self.degree
 
+    def _type_check(s, o, operand):
+        if not isinstance(o, s.__class__):
+            raise TypeError(
+                f"unsupported operand type(s) for {operand}: '{s.__class__.__name__}' and '{type(o).__name__}'"
+            )
+
     def _degree(self):
         for i in range(len(self.coefs))[::-1]:
             if self[i] != self.coef_zero:
@@ -146,6 +149,39 @@ class PR(algebraic.Set):
             r += s[d] * (x ** d)
         return r
 
+    def is_irreducible_poly(self):
+        p, d = self.coef_cls.p, self.degree
+        for n in range(2, p ** (d - 1)):
+            d_poly = from_n(self.__class__, n)
+            if self % d_poly == self.zero():
+                return False
+        return True
+
+    def is_primitive_poly(self, degree):
+        if not self.is_irreducible_poly():
+            return False
+        p = self.coef_cls.p ** degree
+        divs = [d for d in range(1, p - 1) if (p - 1) % d == 0]
+
+        x = self.__class__([self.coef_zero, self.coef_one])
+        for d in divs:
+            if (x ** d) % self == self.one():
+                return False
+        return True
+
+    @classmethod
+    def gen_primitive_poly(cls, degree):
+        if not issubclass(cls.coef_cls, galois_field.GF):
+            raise TypeError(
+                f"generating a primitive poly is possible only with {galois_field.GF.__name__} coefs"
+            )
+        n = cls.coef_cls.p ** degree
+        for n in range(n, n * cls.coef_cls.p):
+            poly = from_n(cls, n)
+            if poly.is_primitive_poly(degree):
+                return poly
+        return None
+
     @classmethod
     def random(cls):
         if issubclass(cls.coef_cls, algebraic.Set):
@@ -157,7 +193,7 @@ class PR(algebraic.Set):
                     for _ in range(random.randint(1, 100))
                 ]
             )
-        raise
+        raise TypeError(f"unsupported coef class: {cls.coef_cls.__name__}")
 
     @classmethod
     def zero(cls):
@@ -165,7 +201,7 @@ class PR(algebraic.Set):
             return cls([cls.coef_cls.zero()])
         if issubclass(cls.coef_cls, (int, float)):
             return cls([0])
-        raise
+        raise TypeError(f"unsupported coef class: {cls.coef_cls.__name__}")
 
     @classmethod
     def one(cls):
@@ -173,7 +209,7 @@ class PR(algebraic.Set):
             return cls([cls.coef_cls.one()])
         if issubclass(cls.coef_cls, (int, float)):
             return cls([1])
-        raise
+        raise TypeError(f"unsupported coef class: {cls.coef_cls.__name__}")
 
 
 def PolynomialRing(p):
@@ -199,21 +235,3 @@ def from_n(cls, n):
         coefs.append(cls.coef_cls(n))
         n //= cls.coef_cls.p
     return cls(coefs)
-
-
-def gen_irreducible_poly(cls, degree):
-    n = cls.coef_cls.p ** degree
-    for n in range(n, n * degree - 1):
-        poly = from_n(cls, n)
-        if is_irreducible_poly(poly):
-            return poly
-    return None
-
-
-def is_irreducible_poly(poly):
-    p, d = poly.coef_cls.p, poly.degree
-    for n in range(2, p ** (d - 1)):
-        d_poly = from_n(poly.__class__, n)
-        if poly % d_poly == poly.zero():
-            return False
-    return True

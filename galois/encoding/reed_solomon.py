@@ -1,5 +1,6 @@
 import galois_field
 import polynomial_ring
+import matrix
 import util
 
 p = 2
@@ -11,7 +12,7 @@ GF = galois_field.GaloisField(p)
 GPR = polynomial_ring.PolynomialRing(GF)
 
 # PolynomialRing[GaloisField[2]](a^8 + a^4 + a^3 + a^2 + 1)
-primitive_poly = GPR([1, 0, 1, 1, 1, 0, 0, 0, 1])
+primitive_poly = GPR.gen_primitive_poly(8)
 
 # GaloisField[a^8 + a^4 + a^3 + a^2 + 1]
 GEF = galois_field.GaloisField(primitive_poly)
@@ -20,7 +21,7 @@ GEF = galois_field.GaloisField(primitive_poly)
 RS = polynomial_ring.PolynomialRing(GEF)
 
 # PolynomialRing[GaloisField[a^8 + a^4 + a^3 + a^2 + 1]](x)
-x = RS([GEF([0]), GEF([1])])
+x = RS([0, 1])
 
 # GaloisField[a^8 + a^4 + a^3 + a^2 + 1](a)
 a = GEF([0, 1])
@@ -53,38 +54,11 @@ def make_syndrome_matrix(syndromes, k):
     m = []
     for i in range(k):
         m.append(syndromes[i : i + k + 1])
-    return m
-
-
-def gaussian_elimination(m):
-    m = m[:]
-    for i in range(len(m)):
-        c1, j = m[i][i], i + 1
-        while c1 == c1.zero() and j < len(m):
-            # pivot
-            m[i], m[j] = m[j], m[i]
-            c1, j = m[i][i], j + 1
-        if c1 == c1.zero():
-            continue
-
-        m[i] = [m[i][j] / c1 for j in range(len(m[i]))]
-        for j in range(len(m)):
-            if i == j:
-                continue
-            c2 = m[j][i]
-            m[j] = [m[j][k] - m[i][k] * c2 for k in range(len(m[j]))]
-    return m
-
-
-def check_rank(S):
-    for i in range(len(S)):
-        if S[i][i] != S[i][i].one():
-            return i
-    return len(S)
+    return matrix.MatrixRing(m)
 
 
 def get_solutions(S):
-    r = check_rank(S)
+    r = S.check_rank()
     return [S[i][r] for i in range(r)]
 
 
@@ -99,21 +73,19 @@ def make_error_matrix(error_locations, syndromes):
         for j in range(len(error_locations)):
             row.append((a ** error_locations[j]) ** i)
         m.append(row + [syndromes[i]])
-    return m
+    return matrix.MatrixRing(m)
 
 
 def calc_error_poly(C, n, k):
     syndromes = calc_syndromes(C, n - k)
     S = make_syndrome_matrix(syndromes, (n - k) // 2)
-    S = gaussian_elimination(S)
 
-    error_locators = get_solutions(S)
+    error_locators = get_solutions(S.gaussian_elimination())
     error_locator_poly = RS(error_locators + [GEF.one()])
     error_locations = find_error_locations(error_locator_poly, n)
 
     error_matrix = make_error_matrix(error_locations, syndromes)
-    error_matrix = gaussian_elimination(error_matrix)
-    errors = get_solutions(error_matrix)
+    errors = get_solutions(error_matrix.gaussian_elimination())
 
     E = RS.zero()
     for i in range(len(errors)):
