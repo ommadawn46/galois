@@ -1,11 +1,9 @@
-import os
-import sys
 import unittest
 
-path = os.path.join(os.path.dirname(__file__), "../galois")
-sys.path.append(path)
+import pathmagic
 
-from encoding import crc
+with pathmagic.context():
+    from encoding import crc
 
 
 class TestCRC(unittest.TestCase):

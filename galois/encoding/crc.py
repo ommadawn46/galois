@@ -7,7 +7,9 @@ GF = galois_field.GaloisField(p)
 GPR = polynomial_ring.PolynomialRing(GF)
 
 
-def calc(data, width, poly_value, init_value, reflect_in, reflect_out, xor_output):
+def calc(
+    data, width, poly_value, init_value, reflect_in, reflect_out, xor_output
+):
     byte_n = width // 8
 
     new_data = bytearray(data) + bytearray(b"\x00" * byte_n)

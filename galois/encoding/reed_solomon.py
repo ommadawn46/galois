@@ -1,6 +1,6 @@
 import galois_field
-import polynomial_ring
 import matrix
+import polynomial_ring
 import util
 
 p = 2
@@ -63,7 +63,9 @@ def get_solutions(S):
 
 
 def find_error_locations(error_locator_poly, n):
-    return [i for i in range(n) if error_locator_poly.apply(a ** i) == GEF.zero()]
+    return [
+        i for i in range(n) if error_locator_poly.apply(a ** i) == GEF.zero()
+    ]
 
 
 def make_error_matrix(error_locations, syndromes):

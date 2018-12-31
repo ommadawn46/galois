@@ -128,14 +128,20 @@ class PR(algebraic.Set):
     def _type_check(s, o, operand):
         if not isinstance(o, s.__class__):
             raise TypeError(
-                f"unsupported operand type(s) for {operand}: '{s.__class__.__name__}' and '{type(o).__name__}'"
+                f"unsupported operand type(s) for {operand}: "
+                f"'{s.__class__.__name__}' and '{type(o).__name__}'"
             )
 
     def _degree(self):
-        for i in range(len(self.coefs))[::-1]:
+        d = 0
+        length = len(self.coefs)
+        for i in range(length)[::-1]:
             if self[i] != self.coef_zero:
-                return i + 1
-        return 0
+                d = i + 1
+                break
+        if d < length:
+            self.coefs = self.coefs[:d]
+        return d
 
     def leading_coef(self):
         d = self.degree
@@ -173,7 +179,8 @@ class PR(algebraic.Set):
     def gen_primitive_poly(cls, degree):
         if not issubclass(cls.coef_cls, galois_field.GF):
             raise TypeError(
-                f"generating a primitive poly is possible only with {galois_field.GF.__name__} coefs"
+                f"generating a primitive poly is possible only with "
+                f"{galois_field.GF.__name__} coefs"
             )
         n = cls.coef_cls.p ** degree
         for n in range(n, n * cls.coef_cls.p):
@@ -185,7 +192,9 @@ class PR(algebraic.Set):
     @classmethod
     def random(cls):
         if issubclass(cls.coef_cls, algebraic.Set):
-            return cls([cls.coef_cls.random() for _ in range(random.randint(1, 16))])
+            return cls(
+                [cls.coef_cls.random() for _ in range(random.randint(1, 16))]
+            )
         if issubclass(cls.coef_cls, (int, float)):
             return cls(
                 [
@@ -219,8 +228,12 @@ def PolynomialRing(p):
         global CURRENT_VARCHAR
         polynomial_ring = type(f"PolynomialRing[{p.__name__}]", (PR,), {})
         polynomial_ring.coef_cls = p
-        polynomial_ring.coef_zero = p.zero() if issubclass(p, algebraic.Set) else 0
-        polynomial_ring.coef_one = p.one() if issubclass(p, algebraic.Set) else 1
+        polynomial_ring.coef_zero = (
+            p.zero() if issubclass(p, algebraic.Set) else 0
+        )
+        polynomial_ring.coef_one = (
+            p.one() if issubclass(p, algebraic.Set) else 1
+        )
 
         polynomial_ring.VARCHAR = chr(CURRENT_VARCHAR)
         CURRENT_VARCHAR += 1

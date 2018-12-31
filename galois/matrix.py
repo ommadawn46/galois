@@ -1,8 +1,9 @@
-import algebraic
-import set
 import copy
 import random
 from itertools import product
+
+import algebraic
+import set
 
 EPSILON = 1e-10
 
@@ -19,7 +20,7 @@ class MatrixRing(algebraic.Set):
             try:
                 shape.append(len(t_m))
                 t_m = t_m[0]
-            except:
+            except TypeError:
                 break
         self.shape = tuple(shape)
 
@@ -30,33 +31,33 @@ class MatrixRing(algebraic.Set):
         return repr(self.m)
 
     def __add__(s, o):
-        if type(s) is not type(o):
+        if not isinstance(o, s.__class__):
             raise
         if s.shape != o.shape:
             raise
         m = copy.deepcopy(s.m)
         for idxs in product(*map(lambda x: range(x), s.shape)):
-            sp, op, sv, ov = None, None, m, o.m
+            sp, sv, ov = None, m, o.m
             for idx in idxs:
-                sp, op, sv, ov = sv, ov, sv[idx], ov[idx]
+                sp, sv, ov = sv, sv[idx], ov[idx]
             sp[idx] += ov
         return s.__class__(m)
 
     def __sub__(s, o):
-        if type(s) is not type(o):
+        if not isinstance(o, s.__class__):
             raise
         if s.shape != o.shape:
             raise
         m = copy.deepcopy(s.m)
         for idxs in product(*map(lambda x: range(x), s.shape)):
-            sp, op, sv, ov = None, None, m, o.m
+            sp, sv, ov = None, m, o.m
             for idx in idxs:
-                sp, op, sv, ov = sv, ov, sv[idx], ov[idx]
+                sp, sv, ov = sv, sv[idx], ov[idx]
             sp[idx] -= ov
         return s.__class__(m)
 
     def __mul__(s, o):
-        if type(s) is not type(o):
+        if not isinstance(o, s.__class__):
             raise
         if len(s.shape) != 2:
             raise
@@ -74,19 +75,19 @@ class MatrixRing(algebraic.Set):
         return s.__class__(inv_m)
 
     def __truediv__(s, o):
-        if type(s) is not type(o):
+        if not isinstance(o, s.__class__):
             raise
         return s * o._inverse()
 
     __floordiv__ = __truediv__
 
     def __eq__(s, o):
-        if type(s) is not type(o):
+        if not isinstance(o, s.__class__):
             raise
         for idxs in product(*map(lambda x: range(x), s.shape)):
-            sp, op, sv, ov = None, None, s.m, o.m
+            sv, ov = s.m, o.m
             for idx in idxs:
-                sp, op, sv, ov = sv, ov, sv[idx], ov[idx]
+                sv, ov = sv[idx], ov[idx]
             is_set = isinstance(sv, set.Set)
             if is_set and sv != ov:
                 return False
@@ -129,7 +130,8 @@ class MatrixRing(algebraic.Set):
                 m[j] = [m[j][k] - m[i][k] * c2 for k in range(len(m[j]))]
                 if inv:
                     inv_m[j] = [
-                        inv_m[j][k] - inv_m[i][k] * c2 for k in range(len(inv_m[j]))
+                        inv_m[j][k] - inv_m[i][k] * c2
+                        for k in range(len(inv_m[j]))
                     ]
         if inv:
             return inv_m
@@ -166,7 +168,7 @@ class MatrixMultiGroup(MatrixRing):
         return super().__mul__(o)
 
     def __sub__(s, o):
-        if type(s) is not type(o):
+        if not isinstance(o, s.__class__):
             raise
         return s + o._inverse()
 

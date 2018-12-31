@@ -7,8 +7,10 @@ from set import Set
 def is_group(A):
     a, b, c = A.random(), A.random(), A.random()
     try:
-        return all([a + (b + c) == (a + b) + c, a + A.zero() == a, a - a == A.zero()])
-    except:
+        return all(
+            [a + (b + c) == (a + b) + c, a + A.zero() == a, a - a == A.zero()]
+        )
+    except Exception:
         return False
 
 
@@ -16,7 +18,7 @@ def is_abelian_group(A):
     a, b = A.random(), A.random()
     try:
         return a + b == b + a
-    except:
+    except Exception:
         return False
 
 
@@ -30,7 +32,7 @@ def is_ring(A):
                 (a + b) * c == a * c + b * c,
             ]
         )
-    except:
+    except Exception:
         return False
 
 
@@ -38,7 +40,7 @@ def is_commutative_ring(A):
     a, b = A.random(), A.random()
     try:
         return a * b == b * a
-    except:
+    except Exception:
         return False
 
 
@@ -46,7 +48,7 @@ def is_integral_domain(A):
     a = A.random()
     try:
         return a * A.one() == a and a * A.zero() == A.zero()
-    except:
+    except Exception:
         return False
 
 
@@ -56,7 +58,7 @@ def is_field(A):
         a = A.random()
     try:
         return a * (A.one() / a) == A.one()
-    except:
+    except Exception:
         return False
 
 

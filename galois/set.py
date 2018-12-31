@@ -1,6 +1,6 @@
 class Set:
     def __pow__(s, o):
-        if type(o) is not int:
+        if not isinstance(o, int):
             raise
         if o == 0:
             return s.one()

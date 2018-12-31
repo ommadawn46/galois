@@ -1,16 +1,14 @@
-import os
 import random
-import sys
 import unittest
 
-path = os.path.join(os.path.dirname(__file__), "../galois")
-sys.path.append(path)
+import pathmagic
 
-import algebraic
-import galois_field
-import matrix
-import polynomial_ring
-import util
+with pathmagic.context():
+    import algebraic
+    import galois_field
+    import matrix
+    import polynomial_ring
+    import util
 
 
 class TestAlgebraicStructure(unittest.TestCase):

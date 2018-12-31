@@ -1,12 +1,10 @@
-import os
 import random
-import sys
 import unittest
 
-path = os.path.join(os.path.dirname(__file__), "../galois")
-sys.path.append(path)
+import pathmagic
 
-from encoding import reed_solomon as rs
+with pathmagic.context():
+    from encoding import reed_solomon as rs
 
 
 class TestReedSolomons(unittest.TestCase):

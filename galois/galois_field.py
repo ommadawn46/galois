@@ -8,9 +8,9 @@ GALOIS_FIELDS = {}
 
 class GF(algebraic.Set):
     def __init__(self, v):
-        if type(v) is not type(self.p):
+        if not isinstance(v, type(self.p)):
             v = type(self.p)(v)
-        if type(v) is self.__class__:
+        if isinstance(v, self.__class__):
             v = v.v
         self.v = v % self.p
 
@@ -53,16 +53,15 @@ class GF(algebraic.Set):
 
     @classmethod
     def _get_other_value(cls, other):
-        other_type = type(other)
-        if other_type is cls:
+        if isinstance(other, cls):
             return other.v
-        elif other_type is type(cls.p):
+        elif isinstance(other, type(cls.p)):
             return other
         else:
             raise Exception
 
     def __hash__(self):
-        return (self.__class__, self.p).__hash__()
+        return (self.__class__, self.p, self.v).__hash__()
 
     @classmethod
     def random(cls):
