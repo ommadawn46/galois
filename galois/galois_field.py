@@ -8,10 +8,10 @@ GALOIS_FIELDS = {}
 
 class GF(algebraic.Set):
     def __init__(self, v):
-        if not isinstance(v, type(self.p)):
-            v = type(self.p)(v)
         if isinstance(v, self.__class__):
             v = v.v
+        if not isinstance(v, type(self.p)):
+            v = type(self.p)(v)
         self.v = v % self.p
 
     def __str__(self):

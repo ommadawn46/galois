@@ -20,7 +20,7 @@ class MatrixRing(algebraic.Set):
             try:
                 shape.append(len(t_m))
                 t_m = t_m[0]
-            except TypeError:
+            except (IndexError, TypeError):
                 break
         self.shape = tuple(shape)
 
@@ -106,6 +106,9 @@ class MatrixRing(algebraic.Set):
 
     def gaussian_elimination(s, inv=False):
         m = MatrixRing(s.m[:])
+        if len(m) <= 0:
+            return m
+
         zero = m[0][0].zero() if isinstance(m[0][0], set.Set) else 0
         if inv:
             inv_m = MatrixRing.one(len(m))
@@ -138,6 +141,8 @@ class MatrixRing(algebraic.Set):
         return m
 
     def check_rank(s):
+        if len(s) <= 0:
+            return 0
         one = s[0][0].one() if isinstance(s[0][0], set.Set) else 1
         for i in range(len(s)):
             if s[i][i] != one:

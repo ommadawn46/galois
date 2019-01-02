@@ -1,4 +1,6 @@
 def pack_bin_list(bin_list, revese=False):
+    if len(bin_list) <= 0:
+        return b"\x00"
     out = "".join(map(lambda x: str(x), bin_list[::-1]))
     pad = len(out) % 8
     out = "0" * (8 - pad if pad else 0) + out

@@ -78,5 +78,5 @@ class TestCRC(unittest.TestCase):
                 test["xor_output"],
             )
 
-            self.assertEqual(crc_code, test["check"])
             print(f"{test['name']}({test['data']}) = {crc_code}")
+            self.assertEqual(crc_code, test["check"])
