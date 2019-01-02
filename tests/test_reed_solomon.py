@@ -4,8 +4,7 @@ import unittest
 import pathmagic
 
 with pathmagic.context():
-    from encoding.reed_solomon import naive_rs
-    from encoding.reed_solomon import bits_rs
+    import reed_solomon
 
 
 class TestReedSolomon(unittest.TestCase):
@@ -15,7 +14,7 @@ class TestReedSolomon(unittest.TestCase):
             {"input_data": b"Blackjack", "n": 26, "k": 9},
             {"input_data": b"ReedSolomonEncoding", "n": 26, "k": 19},
         ]
-        self.rs_test(naive_rs.NaiveRS, tests)
+        self.reed_solomon_test(reed_solomon.NaiveRS, tests)
 
     def test_bits_reed_solomon(self):
         tests = [
@@ -50,9 +49,9 @@ class TestReedSolomon(unittest.TestCase):
                 "k": 180,
             },
         ]
-        self.rs_test(bits_rs.BitsRS, tests)
+        self.reed_solomon_test(reed_solomon.BitsRS, tests)
 
-    def rs_test(self, RS, tests):
+    def reed_solomon_test(self, RS, tests):
         print()
         for test in tests:
             input_data, n, k = test["input_data"], test["n"], test["k"]
@@ -66,7 +65,7 @@ class TestReedSolomon(unittest.TestCase):
                 gef = rs.GEF.random()
                 while gef == rs.GEF.zero():
                     gef = rs.GEF.random()
-                d = random.randint(1, n - 1)
+                d = random.randint(0, n - 1)
                 noise_poly += rs.RS([gef]) * rs.x ** d
             noised_C = C + noise_poly
             noised_data = rs.poly_to_data(noised_C)

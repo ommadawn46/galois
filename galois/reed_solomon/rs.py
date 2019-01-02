@@ -92,7 +92,7 @@ class RS:
         if C.degree > self.n + self.k:
             raise Exception("too large code polynomial")
         E = self.calc_error_poly(C)
-        return self.RS((C + E)[-self.k :])
+        return self.RS((C + E)[self.n - self.k :])
 
     def encode(self, data):
         I = self.data_to_poly(data)

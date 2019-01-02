@@ -1,8 +1,26 @@
 import random
 
 import algebraic
+import galois_field
+import polynomial_ring
 import util
-from encoding.reed_solomon.naive_rs import naive_a
+
+p = 2
+
+# GaloisField[2]
+GF = galois_field.GaloisField(p)
+
+# PolynomialRing[GaloisField[2]]
+GPR = polynomial_ring.PolynomialRing(GF)
+
+# PolynomialRing[GaloisField[2]](a^8 + a^4 + a^3 + a^2 + 1)
+prime_poly = GPR.gen_primitive_poly(8)
+
+# GaloisField[a^8 + a^4 + a^3 + a^2 + 1]
+naive_GEF = galois_field.GaloisField(prime_poly)
+
+# GaloisField[a^8 + a^4 + a^3 + a^2 + 1](a)
+naive_a = naive_GEF([0, 1])
 
 POW_TABLE = [0] * 256
 LOG_TABLE = [0] * 256
@@ -15,6 +33,7 @@ for d in range(255):
     POW_TABLE[d] = int_data
     LOG_TABLE[int_data] = d
     POLY_TABLE[int_data] = poly
+
 LOG_TABLE[POW_TABLE[255]] = 255
 POLY_TABLE[POW_TABLE[255]] = naive_a.zero()
 
@@ -77,3 +96,10 @@ class BitsGaloisField(algebraic.Set):
     @classmethod
     def one(cls):
         return cls(1)
+
+
+# rs_galois_field.RS_GaloisField
+bits_GEF = BitsGaloisField
+
+# GF[2^8](a)
+bits_a = bits_GEF(2)

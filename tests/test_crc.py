@@ -3,7 +3,7 @@ import unittest
 import pathmagic
 
 with pathmagic.context():
-    from encoding import crc
+    import crc
 
 
 class TestCRC(unittest.TestCase):
