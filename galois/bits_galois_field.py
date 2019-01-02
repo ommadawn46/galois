@@ -22,11 +22,7 @@ POLY_TABLE[POW_TABLE[255]] = naive_a.zero()
 # GF(2^8) for reed-solomon encording
 class BitsGaloisField(algebraic.Set):
     def __init__(self, v):
-        if isinstance(v, self.__class__):
-            v = v.v
-        if not isinstance(v, int):
-            v = int(v)
-        self.v = v % 256
+        self.v = v
 
     def __str__(self):
         return f"{POLY_TABLE[self.v]}"
@@ -59,6 +55,13 @@ class BitsGaloisField(algebraic.Set):
         return s.__class__(v)
 
     __floordiv__ = __truediv__
+
+    def __pow__(s, o):
+        if not isinstance(o, int):
+            raise
+        if o == 0:
+            return s.one()
+        return s.__class__(POW_TABLE[(LOG_TABLE[s.v] * o) % 255])
 
     def __eq__(s, o):
         return s.v == o.v
