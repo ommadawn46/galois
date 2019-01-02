@@ -24,7 +24,6 @@ naive_a = naive_GEF([0, 1])
 
 POW_TABLE = [0] * 256
 LOG_TABLE = [0] * 256
-POLY_TABLE = [None] * 256
 
 for d in range(255):
     poly = naive_a ** d
@@ -32,22 +31,25 @@ for d in range(255):
     int_data = int.from_bytes(bytes_data, "big")
     POW_TABLE[d] = int_data
     LOG_TABLE[int_data] = d
-    POLY_TABLE[int_data] = poly
 
 LOG_TABLE[POW_TABLE[255]] = 255
-POLY_TABLE[POW_TABLE[255]] = naive_a.zero()
 
 
-# GF(2^8) for reed-solomon encording
+# GF(2^8) for reed-solomon encoding
 class BitsGaloisField(algebraic.Set):
     def __init__(self, v):
         self.v = v
 
     def __str__(self):
-        return f"{POLY_TABLE[self.v]}"
+        if self.v <= 1:
+            return f"{self.v}"
+        elif self.v == 2:
+            return "a"
+        else:
+            return f"a^{LOG_TABLE[self.v]}"
 
     def __repr__(self):
-        return f"GF[2^8]({POLY_TABLE[self.v]})"
+        return f"GF[2^8]({self})"
 
     def __add__(s, o):
         return s.__class__(s.v ^ o.v)
@@ -98,7 +100,7 @@ class BitsGaloisField(algebraic.Set):
         return cls(1)
 
 
-# rs_galois_field.RS_GaloisField
+# BitsGaloisField (GF[2^8])
 bits_GEF = BitsGaloisField
 
 # GF[2^8](a)

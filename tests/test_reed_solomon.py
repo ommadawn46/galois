@@ -7,7 +7,41 @@ with pathmagic.context():
     import reed_solomon
 
 
+def make_noise_poly(rs, n, k):
+    noise_poly = rs.RS.zero()
+    for i in range((n - k) // 2):
+        gef = rs.GEF.random()
+        while gef == rs.GEF.zero():
+            gef = rs.GEF.random()
+        d = random.randint(0, n - 1)
+        noise_poly += rs.RS([gef]) * rs.x ** d
+    return noise_poly
+
+
 class TestReedSolomon(unittest.TestCase):
+    def reed_solomon_test(self, RS, tests):
+        print()
+        for test in tests:
+            input_data, n, k = test["input_data"], test["n"], test["k"]
+            rs = RS(n, k)
+
+            I = rs.data_to_poly(input_data)
+            C = rs.encode_poly(I)
+
+            noise_poly = make_noise_poly(rs, n, k)
+            noised_C = noise_poly + C
+
+            decoded_I = rs.decode_poly(noised_C)
+
+            print(
+                f"""{RS.__name__}.decode({
+                    rs.poly_to_data(noised_C)
+                }) = {
+                    rs.poly_to_data(decoded_I)
+                }"""
+            )
+            self.assertEqual(I, decoded_I)
+
     def test_naive_reed_solomon(self):
         tests = [
             {"input_data": b"Puzzle", "n": 10, "k": 6},
@@ -50,28 +84,3 @@ class TestReedSolomon(unittest.TestCase):
             },
         ]
         self.reed_solomon_test(reed_solomon.BitsRS, tests)
-
-    def reed_solomon_test(self, RS, tests):
-        print()
-        for test in tests:
-            input_data, n, k = test["input_data"], test["n"], test["k"]
-            rs = RS(n, k)
-
-            I = rs.data_to_poly(input_data)
-            C = rs.encode_poly(I)
-
-            noise_poly = rs.RS.zero()
-            for i in range((n - k) // 2):
-                gef = rs.GEF.random()
-                while gef == rs.GEF.zero():
-                    gef = rs.GEF.random()
-                d = random.randint(0, n - 1)
-                noise_poly += rs.RS([gef]) * rs.x ** d
-            noised_C = C + noise_poly
-            noised_data = rs.poly_to_data(noised_C)
-
-            decoded_I = rs.decode_poly(noised_C)
-            decoded_data = rs.poly_to_data(decoded_I)
-
-            print(f"{RS.__name__}({noised_data}) = {decoded_data}")
-            self.assertEqual(decoded_data, input_data)
