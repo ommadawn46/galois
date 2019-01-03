@@ -79,7 +79,7 @@ class PR(algebraic.Set):
         return s.__class__(coefs)
 
     def _div_mod(s, o):
-        q = s.__class__([s.coef_zero])
+        q = s.zero()
         r = s
         while r.degree >= o.degree:
             e = r.degree - o.degree
@@ -206,19 +206,11 @@ class PR(algebraic.Set):
 
     @classmethod
     def zero(cls):
-        if issubclass(cls.coef_cls, algebraic.Set):
-            return cls([cls.coef_cls.zero()])
-        if issubclass(cls.coef_cls, (int, float)):
-            return cls([0])
-        raise TypeError(f"unsupported coef class: {cls.coef_cls.__name__}")
+        return cls(cls.coef_zero)
 
     @classmethod
     def one(cls):
-        if issubclass(cls.coef_cls, algebraic.Set):
-            return cls([cls.coef_cls.one()])
-        if issubclass(cls.coef_cls, (int, float)):
-            return cls([1])
-        raise TypeError(f"unsupported coef class: {cls.coef_cls.__name__}")
+        return cls(cls.coef_one)
 
 
 def PolynomialRing(p):

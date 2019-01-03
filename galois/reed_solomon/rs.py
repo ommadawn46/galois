@@ -4,7 +4,7 @@ import polynomial_ring
 
 def get_solutions(S):
     r = S.check_rank()
-    return [S[i][r] for i in range(r)]
+    return [-S[i][r] for i in range(r)]
 
 
 class RS:
@@ -85,7 +85,7 @@ class RS:
             raise Exception("too large information polynomial")
         shifted_I = I * self.x ** (self.n - self.k)
         P = shifted_I % self.G
-        C = shifted_I + P
+        C = shifted_I - P
         return C
 
     def decode_poly(self, C):

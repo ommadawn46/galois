@@ -84,3 +84,23 @@ class TestReedSolomon(unittest.TestCase):
             },
         ]
         self.reed_solomon_test(reed_solomon.BitsRS, tests)
+
+    def test_modulo_reed_solomon(self):
+        tests = [
+            {
+                "input_data": b"The old man was thin and gaunt",
+                "n": 64,
+                "k": 30,
+            },
+            {
+                "input_data": b"with deep wrinkles in the back",
+                "n": 72,
+                "k": 30,
+            },
+            {
+                "input_data": b"of his neck. The brown blotche",
+                "n": 80,
+                "k": 30,
+            },
+        ]
+        self.reed_solomon_test(reed_solomon.ModuloRS, tests)
