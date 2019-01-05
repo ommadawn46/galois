@@ -14,12 +14,13 @@ with pathmagic.context():
 
 class TestAlgebraicStructure(unittest.TestCase):
     def test_galois_field(self):
-        def do_test(A, want_struct):
+        def do_test(test):
             print()
-            got_struct = algebraic.Structure.check(A)
+            input_cls, want = test["input_cls"], test["want"]
+            got = algebraic.Structure.check(input_cls)
 
-            print(f"{A.__name__} is", got_struct)
-            self.assertEqual(got_struct, want_struct)
+            print(f"{input_cls.__name__} is", got)
+            self.assertEqual(got, want)
 
         p = util.next_prime(random.randint(1 << 15, 1 << 16))
         GFp = galois_field.GaloisField(p)
@@ -33,25 +34,25 @@ class TestAlgebraicStructure(unittest.TestCase):
         GEPR = polynomial_ring.PolynomialRing(GEF)
 
         tests = [
-            {"input": GFp, "want": algebraic.Structure.FIELD},
-            {"input": GpPR, "want": algebraic.Structure.INTEGRAL_DOMAIN},
-            {"input": GEF, "want": algebraic.Structure.FIELD},
-            {"input": GEPR, "want": algebraic.Structure.INTEGRAL_DOMAIN},
+            {"input_cls": GFp, "want": algebraic.Structure.FIELD},
+            {"input_cls": GpPR, "want": algebraic.Structure.INTEGRAL_DOMAIN},
+            {"input_cls": GEF, "want": algebraic.Structure.FIELD},
+            {"input_cls": GEPR, "want": algebraic.Structure.INTEGRAL_DOMAIN},
             {
-                "input": polynomial_ring.PolynomialRing(int),
+                "input_cls": polynomial_ring.PolynomialRing(int),
                 "want": algebraic.Structure.INTEGRAL_DOMAIN,
             },
             {
-                "input": bits_galois_field.BitsGaloisField,
+                "input_cls": bits_galois_field.BitsGaloisField,
                 "want": algebraic.Structure.FIELD,
             },
-            {"input": matrix.MatrixRing, "want": algebraic.Structure.RING},
+            {"input_cls": matrix.MatrixRing, "want": algebraic.Structure.RING},
             {
-                "input": matrix.MatrixMultiGroup,
+                "input_cls": matrix.MatrixMultiGroup,
                 "want": algebraic.Structure.GROUP,
             },
         ]
 
         for test in tests:
             with self.subTest():
-                do_test(test["input"], test["want"])
+                do_test(test)

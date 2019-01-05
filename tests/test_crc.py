@@ -8,6 +8,21 @@ with pathmagic.context():
 
 class TestCRC(unittest.TestCase):
     def test_crc(self):
+        def do_test(test):
+            print()
+            crc_code = crc.calc(
+                test["data"],
+                test["width"],
+                test["poly_value"],
+                test["init_value"],
+                test["reflect_in"],
+                test["reflect_out"],
+                test["xor_output"],
+            )
+
+            print(f"{test['name']}({test['data']}) = {crc_code}")
+            self.assertEqual(crc_code, test["check"])
+
         tests = [
             {
                 "name": "CRC8",
@@ -66,17 +81,6 @@ class TestCRC(unittest.TestCase):
             },
         ]
 
-        print()
         for test in tests:
-            crc_code = crc.calc(
-                test["data"],
-                test["width"],
-                test["poly_value"],
-                test["init_value"],
-                test["reflect_in"],
-                test["reflect_out"],
-                test["xor_output"],
-            )
-
-            print(f"{test['name']}({test['data']}) = {crc_code}")
-            self.assertEqual(crc_code, test["check"])
+            with self.subTest():
+                do_test(test)

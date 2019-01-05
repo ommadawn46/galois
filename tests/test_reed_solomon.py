@@ -19,10 +19,43 @@ def make_noise_poly(rs, n, k):
 
 
 class TestReedSolomon(unittest.TestCase):
-    def reed_solomon_test(self, RS, tests):
-        print()
-        for test in tests:
+    def test_compare_naive_and_bits(self):
+        def do_test(test):
+            print()
             input_data, n, k = test["input_data"], test["n"], test["k"]
+
+            naive_rs = reed_solomon.NaiveRS(n, k)
+            bits_rs = reed_solomon.BitsRS(n, k)
+
+            naive_code = naive_rs.encode(input_data)
+            bits_code = bits_rs.encode(input_data)
+
+            self.assertEqual(naive_code, bits_code)
+            print(
+                f"{reed_solomon.NaiveRS.__name__}.encode({input_data}) = "
+                f"{reed_solomon.BitsRS.__name__}.encode({input_data}) = "
+                f"{naive_code}"
+            )
+
+        tests = [
+            {"input_data": b"Puzzle", "n": 10, "k": 6},
+            {"input_data": b"Blackjack", "n": 26, "k": 9},
+            {"input_data": b"ReedSolomonEncoding", "n": 26, "k": 19},
+        ]
+
+        for test in tests:
+            with self.subTest():
+                do_test(test)
+
+    def test_reed_solomon(self):
+        def do_test(test):
+            print()
+            RS, input_data, n, k = (
+                test["codec"],
+                test["input_data"],
+                test["n"],
+                test["k"],
+            )
             rs = RS(n, k)
 
             I = rs.data_to_poly(input_data)
@@ -42,17 +75,27 @@ class TestReedSolomon(unittest.TestCase):
             )
             self.assertEqual(I, decoded_I)
 
-    def test_naive_reed_solomon(self):
-        tests = [
-            {"input_data": b"Puzzle", "n": 10, "k": 6},
-            {"input_data": b"Blackjack", "n": 26, "k": 9},
-            {"input_data": b"ReedSolomonEncoding", "n": 26, "k": 19},
-        ]
-        self.reed_solomon_test(reed_solomon.NaiveRS, tests)
-
-    def test_bits_reed_solomon(self):
         tests = [
             {
+                "codec": reed_solomon.NaiveRS,
+                "input_data": b"Puzzle",
+                "n": 10,
+                "k": 6,
+            },
+            {
+                "codec": reed_solomon.NaiveRS,
+                "input_data": b"Blackjack",
+                "n": 26,
+                "k": 9,
+            },
+            {
+                "codec": reed_solomon.NaiveRS,
+                "input_data": b"ReedSolomonEncoding",
+                "n": 26,
+                "k": 19,
+            },
+            {
+                "codec": reed_solomon.BitsRS,
                 "input_data": (
                     b"He was an old man who fished a"
                     b"lone in a skiff in the Gulf St"
@@ -61,6 +104,7 @@ class TestReedSolomon(unittest.TestCase):
                 "k": 60,
             },
             {
+                "codec": reed_solomon.BitsRS,
                 "input_data": (
                     b"ream and he had gone eighty-fo"
                     b"ur days now without taking a f"
@@ -71,6 +115,7 @@ class TestReedSolomon(unittest.TestCase):
                 "k": 120,
             },
             {
+                "codec": reed_solomon.BitsRS,
                 "input_data": (
                     b"ter forty days without a fish "
                     b"the boy's parents had told him"
@@ -82,49 +127,26 @@ class TestReedSolomon(unittest.TestCase):
                 "n": 250,
                 "k": 180,
             },
-        ]
-        self.reed_solomon_test(reed_solomon.BitsRS, tests)
-
-    def test_modulo_reed_solomon(self):
-        tests = [
             {
+                "codec": reed_solomon.ModuloRS,
                 "input_data": b"The old man was thin and gaunt",
                 "n": 64,
                 "k": 30,
             },
             {
+                "codec": reed_solomon.ModuloRS,
                 "input_data": b"with deep wrinkles in the back",
                 "n": 72,
                 "k": 30,
             },
             {
+                "codec": reed_solomon.ModuloRS,
                 "input_data": b"of his neck. The brown blotche",
                 "n": 80,
                 "k": 30,
             },
         ]
-        self.reed_solomon_test(reed_solomon.ModuloRS, tests)
 
-    def test_compare_naive_and_bits(self):
-        tests = [
-            {"input_data": b"Puzzle", "n": 10, "k": 6},
-            {"input_data": b"Blackjack", "n": 26, "k": 9},
-            {"input_data": b"ReedSolomonEncoding", "n": 26, "k": 19},
-        ]
-
-        print()
         for test in tests:
-            input_data, n, k = test["input_data"], test["n"], test["k"]
-
-            naive_rs = reed_solomon.NaiveRS(n, k)
-            bits_rs = reed_solomon.BitsRS(n, k)
-
-            naive_code = naive_rs.encode(input_data)
-            bits_code = bits_rs.encode(input_data)
-
-            self.assertEqual(naive_code, bits_code)
-            print(
-                f"{reed_solomon.NaiveRS.__name__}.encode({input_data}) = "
-                f"{reed_solomon.BitsRS.__name__}.encode({input_data}) = "
-                f"{naive_code}"
-            )
+            with self.subTest():
+                do_test(test)
