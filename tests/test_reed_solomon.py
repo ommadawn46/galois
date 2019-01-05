@@ -104,3 +104,27 @@ class TestReedSolomon(unittest.TestCase):
             },
         ]
         self.reed_solomon_test(reed_solomon.ModuloRS, tests)
+
+    def test_compare_naive_and_bits(self):
+        tests = [
+            {"input_data": b"Puzzle", "n": 10, "k": 6},
+            {"input_data": b"Blackjack", "n": 26, "k": 9},
+            {"input_data": b"ReedSolomonEncoding", "n": 26, "k": 19},
+        ]
+
+        print()
+        for test in tests:
+            input_data, n, k = test["input_data"], test["n"], test["k"]
+
+            naive_rs = reed_solomon.NaiveRS(n, k)
+            bits_rs = reed_solomon.BitsRS(n, k)
+
+            naive_code = naive_rs.encode(input_data)
+            bits_code = bits_rs.encode(input_data)
+
+            self.assertEqual(naive_code, bits_code)
+            print(
+                f"{reed_solomon.NaiveRS.__name__}.encode({input_data}) = "
+                f"{reed_solomon.BitsRS.__name__}.encode({input_data}) = "
+                f"{naive_code}"
+            )

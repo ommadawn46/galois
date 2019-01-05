@@ -20,7 +20,7 @@ class ModuloRS(rs.RS):
         for byte in data[::-1]:
             char = byte - 0x20
             if char > p:
-                raise
+                char = 0
             coefs.append(self.GEF(char % p))
         return self.RS(coefs)
 
