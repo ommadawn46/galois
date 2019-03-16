@@ -10,6 +10,7 @@ with pathmagic.context():
     import matrix
     import polynomial_ring
     import util
+    import elliptic_curve
 
 
 class TestAlgebraicStructure(unittest.TestCase):
@@ -33,6 +34,9 @@ class TestAlgebraicStructure(unittest.TestCase):
         GEF = galois_field.GaloisField(primitive_poly)
         GEPR = polynomial_ring.PolynomialRing(GEF)
 
+        curve = elliptic_curve.EllipticCurve(-2, 1)
+        Point = elliptic_curve.EllipticCurvePoint(curve)
+
         tests = [
             {"input_cls": GFp, "want": algebraic.Structure.FIELD},
             {"input_cls": GpPR, "want": algebraic.Structure.INTEGRAL_DOMAIN},
@@ -51,6 +55,7 @@ class TestAlgebraicStructure(unittest.TestCase):
                 "input_cls": matrix.MatrixMultiGroup,
                 "want": algebraic.Structure.GROUP,
             },
+            {"input_cls": Point, "want": algebraic.Structure.ABELIAN_GROUP},
         ]
 
         for test in tests:
