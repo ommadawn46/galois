@@ -12,6 +12,7 @@ def is_composite(a, d, n):
     return y != n - 1 and t != d
 
 
+# Miller–Rabin primality test
 def probably_prime(n, k=16):
     n = abs(n)
     if n == 2:

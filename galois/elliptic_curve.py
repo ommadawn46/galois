@@ -7,15 +7,17 @@ import algebraic
 ELLIPTIC_CURVES = {}
 
 
-class Point(algebraic.Set):
+class ECPoint(algebraic.Set):
     def __init__(self, x, y):
         self.x, self.y = x, y
+        if not self.curve.on_curve(self):
+            raise Exception("ECPoint must be on curve")
 
     def __str__(self):
-        return f"({self.x}, {self.y})"
+        return f"{{x: {self.x}, y: {self.y}}}"
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.x}, {self.y})"
+        return f"{self.__class__.__name__}{{x: {self.x}, y: {self.y}}}"
 
     def __add__(s, o):
         x1, x2, y1, y2 = s.x, o.x, s.y, o.y
@@ -35,14 +37,11 @@ class Point(algebraic.Set):
             l = (x1 * x1 * 3 + a) / (y1 * 2)
         else:
             l = (y2 - y1) / (x2 - x1)
-            
+
         x3 = l * l - x1 - x2
         y3 = l * (x1 - x3) - y1
 
-        p = s.__class__(x3, y3)
-        if not s.curve.on_curve(p):
-            raise
-        return p
+        return s.__class__(x3, y3)
 
     def __sub__(s, o):
         return s + (-o)
@@ -53,7 +52,7 @@ class Point(algebraic.Set):
 
     def __mul__(s, o):
         if not isinstance(o, int):
-            raise
+            raise Exception("ECPoint supports only scalar multiplication")
         if o == 0:
             return s.zero()
         if o == 1:
@@ -104,6 +103,8 @@ class EllipticCurve:
         return x ** 3 + self.a * x + self.b
 
     def on_curve(self, p):
+        if p.x is None and p.y is None:
+            return True
         return self.left(p.y) == self.right(p.x)
 
 
@@ -111,7 +112,7 @@ def EllipticCurvePoint(curve):
     if curve in ELLIPTIC_CURVES:
         return ELLIPTIC_CURVES[curve]
     else:
-        point = type(f"Point[{curve}]", (Point,), {})
+        point = type(f"ECPoint[{curve}]", (ECPoint,), {})
         point.curve = curve
         ELLIPTIC_CURVES[curve] = point
         return point

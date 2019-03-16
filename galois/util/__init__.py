@@ -5,6 +5,7 @@ from .ext_euclidean import extgcd
 from .ext_euclidean import modinv
 from .prime_number import next_prime
 from .prime_number import probably_prime
+from .sqrt_mod import sqrt_mod
 
 __all__ = [
     "pack_bin_list",
@@ -14,4 +15,5 @@ __all__ = [
     "modinv",
     "probably_prime",
     "next_prime",
+    "sqrt_mod",
 ]
