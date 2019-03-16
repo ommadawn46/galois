@@ -58,11 +58,16 @@ class Point(algebraic.Set):
             return s.zero()
         if o == 1:
             return s
+        if o < 0:
+            s, o = -s, -o
         x = s * (o >> 1)
         y = x + x
         if o & 1:
             y += s
         return y
+
+    def __rmul__(s, o):
+        return s * o
 
     def __eq__(s, o):
         return s.x == o.x and s.y == o.y
